@@ -73,7 +73,7 @@ func (o *AuditorOptions) Complete() error {
 	return nil
 }
 
-func (o AuditorOptions) Config() (*server.GrafanaOperatorConfig, error) {
+func (o AuditorOptions) Config() (*server.AuditorConfig, error) {
 	// TODO have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
@@ -92,7 +92,7 @@ func (o AuditorOptions) Config() (*server.GrafanaOperatorConfig, error) {
 		return nil, err
 	}
 
-	config := &server.GrafanaOperatorConfig{
+	config := &server.AuditorConfig{
 		GenericConfig: serverConfig,
 		ExtraConfig:   extraConfig,
 	}

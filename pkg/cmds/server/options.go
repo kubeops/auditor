@@ -24,8 +24,13 @@ import (
 
 	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
 	"kubeshield.dev/auditor/pkg/controller"
+	"kubeshield.dev/auditor/pkg/controller/receiver"
 
+	natsevents "github.com/cloudevents/sdk-go/protocol/nats/v2"
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/nats-io/nats.go"
 	"github.com/spf13/pflag"
+	"gomodules.xyz/x/log"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
@@ -37,8 +42,8 @@ type ExtraOptions struct {
 
 	// TODO: Should include full HTTP endpoint options, eg, CA, client certs
 	// eg: https://github.com/DirectXMan12/k8s-prometheus-adapter/blob/master/cmd/adapter/adapter.go#L57-L66
-	ReceiverAddress string
-	ReceiverToken   string
+	ReceiverAddress        string
+	ReceiverCredentialFile string
 
 	MaxNumRequeues int
 	NumThreads     int
@@ -62,8 +67,8 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 
 	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
 
-	fs.StringVar(&s.ReceiverAddress, "receiver-addr", s.ReceiverAddress, "Receiver endpoint address")
-	fs.StringVar(&s.ReceiverToken, "receiver-token", s.ReceiverToken, "Token used to authenticate with receiver")
+	fs.StringVar(&s.ReceiverAddress, "receiver-addr", "nats://classic-server.nats.svc", "Receiver endpoint address")
+	fs.StringVar(&s.ReceiverCredentialFile, "receiver-credential-file", s.ReceiverCredentialFile, "Token used to authenticate with receiver")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
@@ -91,8 +96,17 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		}
 		cfg.Policy = policy
 	}
+	cfg.Policy.Resources = append(cfg.Policy.Resources, []v1alpha1.GroupResources{
+		{
+			Group:     "apps",
+			Resources: []string{"deployments"},
+		},
+		{
+			Resources: []string{"pods"},
+		},
+	}...)
 	cfg.ReceiverAddress = s.ReceiverAddress
-	cfg.ReceiverToken = s.ReceiverToken
+	cfg.ReceiverCredentialFile = s.ReceiverCredentialFile
 
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads
@@ -106,5 +120,23 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	if cfg.DynamicClient, err = dynamic.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
+	var natsOpts = []nats.Option{nats.Name("Auditor")}
+	if len(cfg.ReceiverCredentialFile) > 0 {
+		natsOpts = append(natsOpts, nats.UserCredentials(cfg.ReceiverCredentialFile))
+	}
+	if cfg.NatsClient, err = nats.Connect(cfg.ReceiverAddress, natsOpts...); err != nil {
+		return err
+	}
+	log.Infof("Nats connection established to %s", cfg.ReceiverAddress)
+
+	sender, err := natsevents.NewSenderFromConn(cfg.NatsClient, receiver.Subject)
+	if err != nil {
+		return err
+	}
+
+	if cfg.CloudEventsClient, err = cloudevents.NewClient(sender); err != nil {
+		return err
+	}
+
 	return nil
 }

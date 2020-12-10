@@ -22,6 +22,8 @@ import (
 	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
 	"kubeshield.dev/auditor/pkg/eventer"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/nats-io/nats.go"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
@@ -33,8 +35,8 @@ type config struct {
 	Policy v1alpha1.AuditRegistration
 
 	// TODO: Should include full HTTP endpoint options
-	ReceiverAddress string
-	ReceiverToken   string
+	ReceiverAddress        string
+	ReceiverCredentialFile string
 
 	MaxNumRequeues int
 	NumThreads     int
@@ -47,6 +49,9 @@ type Config struct {
 	ClientConfig  *rest.Config
 	KubeClient    kubernetes.Interface
 	DynamicClient dynamic.Interface
+
+	NatsClient        *nats.Conn
+	CloudEventsClient cloudevents.Client
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -65,8 +70,11 @@ func (c *Config) New() (*AuditorController, error) {
 		clientConfig:           c.ClientConfig,
 		kubeClient:             c.KubeClient,
 		dynamicClient:          c.DynamicClient,
-		dynamicInformerFactory: dynamicinformer.NewDynamicSharedLiteInformerFactory(c.DynamicClient, c.ResyncPeriod),
+		dynamicInformerFactory: dynamicinformer.NewDynamicSharedInformerFactory(c.DynamicClient, c.ResyncPeriod),
 		recorder:               eventer.NewEventRecorder(c.KubeClient, "auditor"),
+
+		natsClient:        c.NatsClient,
+		cloudEventsClient: c.CloudEventsClient,
 	}
 
 	if err := ctrl.initWatchers(); err != nil {

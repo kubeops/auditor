@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo"
 )
 
-var _ = Describe("Grafana Operator E2E testing", func() {
+var _ = Describe("Auditor E2E testing", func() {
 	var (
 		f *framework.Invocation
 	)

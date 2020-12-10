@@ -20,6 +20,9 @@ import (
 	"fmt"
 	"strings"
 
+	"kubeshield.dev/auditor/pkg/controller/receiver"
+
+	"gomodules.xyz/x/log"
 	stringz "gomodules.xyz/x/strings"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -47,7 +50,10 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			fmt.Println(u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
+			if err = receiver.PublishEvent(c.cloudEventsClient, u); err != nil {
+				log.Error(err)
+			}
+			fmt.Println("Add Func: ", u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
 			//if data, err := yaml.Marshal(u); err == nil {
 			//	fmt.Println(string(data))
 			//}
@@ -61,10 +67,11 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
+			fmt.Println(uOld.GetName(), "generation: ", uOld.GetGeneration(), "<==>", uNew.GetName(), "generation: ", uNew.GetGeneration())
 			if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
 				return
 			}
-			fmt.Println(uNew.GetObjectKind().GroupVersionKind(), uNew.GetUID(), uNew.GetName(), uNew.GetGeneration())
+			fmt.Println("Update Func: ", uNew.GetObjectKind().GroupVersionKind(), uNew.GetUID(), uNew.GetName(), uNew.GetGeneration())
 			//if data, err := yaml.Marshal(u); err == nil {
 			//	fmt.Println(string(data))
 			//}
@@ -109,6 +116,7 @@ func (c *AuditorController) initWatchers() error {
 		}
 	} else {
 		for _, resource := range c.Policy.Resources {
+			klog.Infoln("******************************************************\n", resource)
 			for _, name := range resource.Resources {
 				if strings.ContainsRune(name, '/') {
 					continue
@@ -118,7 +126,9 @@ func (c *AuditorController) initWatchers() error {
 					// Version:  "",
 					Resource: name,
 				}
-				gvr, err := mapper.ResourceFor(gvr)
+				fmt.Println(gvr)
+
+				gvr, err = mapper.ResourceFor(gvr)
 				if err != nil {
 					return err
 				}
