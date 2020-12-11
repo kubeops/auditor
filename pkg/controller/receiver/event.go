@@ -18,37 +18,34 @@ package receiver
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	eventz "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 const (
 	Subject = "ClusterEvents"
 )
 
-func PublishEvent(client cloudevents.Client, obj interface{}) error {
+func PublishEvent(client cloudevents.Client, obj string) error {
+	fmt.Println(obj)
 	event := cloudevents.NewEvent()
 	setEventDefaults(&event)
-	data, err := obj.(*unstructured.Unstructured).MarshalJSON()
-	if err != nil {
-		return err
-	}
-	if err = event.SetData("application/json", data); err != nil {
+	if err := event.SetData("application/json", obj); err != nil {
 		return err
 	}
 	result := client.Send(context.Background(), event)
 	if cloudevents.IsUndelivered(result) {
-		log.Printf("failed to send: %v", err)
-		return err
+		log.Printf("failed to send: %v", result.Error())
+		return result
 	}
 	log.Printf("Published event to channel `%s` and acknoledged: %v", Subject, cloudevents.IsACK(result))
 
-	return err
+	return nil
 }
 
 func setEventDefaults(event *eventz.Event) {

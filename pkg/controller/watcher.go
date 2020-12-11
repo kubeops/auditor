@@ -32,6 +32,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"sigs.k8s.io/yaml"
 )
 
 func (c *AuditorController) initWatchers() error {
@@ -50,13 +51,14 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			if err = receiver.PublishEvent(c.cloudEventsClient, u); err != nil {
+			fmt.Println("Add Func: ", u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
+			data, err := yaml.Marshal(u)
+			if err != nil {
+				return
+			}
+			if err = receiver.PublishEvent(c.cloudEventsClient, string(data)); err != nil {
 				log.Error(err)
 			}
-			fmt.Println("Add Func: ", u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
-			//if data, err := yaml.Marshal(u); err == nil {
-			//	fmt.Println(string(data))
-			//}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			uOld, ok := oldObj.(*unstructured.Unstructured)
@@ -67,7 +69,7 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			fmt.Println(uOld.GetName(), "generation: ", uOld.GetGeneration(), "<==>", uNew.GetName(), "generation: ", uNew.GetGeneration())
+			//fmt.Println(uOld.GetName(), "generation: ", uOld.GetGeneration(), "<==>", uNew.GetName(), "generation: ", uNew.GetGeneration())
 			if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
 				return
 			}
@@ -116,7 +118,6 @@ func (c *AuditorController) initWatchers() error {
 		}
 	} else {
 		for _, resource := range c.Policy.Resources {
-			klog.Infoln("******************************************************\n", resource)
 			for _, name := range resource.Resources {
 				if strings.ContainsRune(name, '/') {
 					continue
@@ -126,11 +127,11 @@ func (c *AuditorController) initWatchers() error {
 					// Version:  "",
 					Resource: name,
 				}
-				fmt.Println(gvr)
 
 				gvr, err = mapper.ResourceFor(gvr)
 				if err != nil {
-					return err
+					klog.Errorln(err)
+					continue
 				}
 				klog.Infoln("watching", gvr)
 				c.dynamicInformerFactory.ForResource(gvr).Informer().AddEventHandler(handler)

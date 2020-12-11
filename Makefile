@@ -475,6 +475,7 @@ install:
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \
+		--set auditor.receiverAddr="nats://classic-server.nats.svc" \
 		$(IMAGE_PULL_SECRETS); \
 
 .PHONY: uninstall

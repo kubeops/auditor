@@ -31,6 +31,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/pflag"
 	"gomodules.xyz/x/log"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
@@ -67,8 +68,9 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 
 	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
 
-	fs.StringVar(&s.ReceiverAddress, "receiver-addr", "nats://classic-server.nats.svc", "Receiver endpoint address")
+	fs.StringVar(&s.ReceiverAddress, "receiver-addr", s.ReceiverAddress, "Receiver endpoint address")
 	fs.StringVar(&s.ReceiverCredentialFile, "receiver-credential-file", s.ReceiverCredentialFile, "Token used to authenticate with receiver")
+	fmt.Println("receiver-credential-file: ", s.ReceiverCredentialFile)
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
@@ -96,15 +98,7 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		}
 		cfg.Policy = policy
 	}
-	cfg.Policy.Resources = append(cfg.Policy.Resources, []v1alpha1.GroupResources{
-		{
-			Group:     "apps",
-			Resources: []string{"deployments"},
-		},
-		{
-			Resources: []string{"pods"},
-		},
-	}...)
+
 	cfg.ReceiverAddress = s.ReceiverAddress
 	cfg.ReceiverCredentialFile = s.ReceiverCredentialFile
 
@@ -138,5 +132,62 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 
+	return nil
+}
+
+func setDefaultPolicies(policy *v1alpha1.AuditRegistration) error {
+	policy = &v1alpha1.AuditRegistration{
+		TypeMeta: v1.TypeMeta{
+			Kind:       v1alpha1.ResourceKindAuditRegistration,
+			APIVersion: v1alpha1.SchemeGroupVersion.String(),
+		},
+		Resources: []v1alpha1.GroupResources{
+			{
+				Group:     "apps",
+				Resources: []string{"deployments"},
+			},
+			{
+				Resources: []string{"pods", "namespaces", "secrets"},
+			},
+			{
+				Group:     "appcatalog.appscode.com",
+				Resources: []string{"appbindings"},
+			},
+			{
+				Group:     "catalog.kubedb.com",
+				Resources: []string{"etcdversions", "mysqlversions", "redisversions", "mongodbversions", "postgresversions", "memcachedversions", "elasticsearchversions"},
+			},
+			{
+				Group:     "cloud.bytebuilders.dev",
+				Resources: []string{"credentials", "machinetypes", "cloudproviders", "clusterinfos", "clusteruserauths", "clusterauthinfotemplates"},
+			},
+			{
+				Group:     "kubedb.com",
+				Resources: []string{"etcds", "mysqls", "redises", "mongodbs", "snapshots", "memcacheds", "postgreses", "elasticsearches", "dormantdatabases"},
+			},
+			{
+				Group:     "kubepack.com",
+				Resources: []string{"plans", "products"},
+			},
+			{
+				Group:     "monitoring.appscode.com",
+				Resources: []string{"incidents", "podalerts", "nodealerts", "clusteralerts", "searchlightplugins"},
+			},
+			{
+				Group:     "stash.appscode.com",
+				Resources: []string{"tasks", "restics", "functions", "recoveries", "repositories", "backupbatches", "backupsessions", "restoresessions", "backupblueprints", "backupconfigurations"},
+			},
+			{
+				Group:     "voyager.appscode.com",
+				Resources: []string{"ingresses", "certificates"},
+			},
+		},
+	}
+
+	data, err := yaml.Marshal(policy)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(data))
 	return nil
 }
