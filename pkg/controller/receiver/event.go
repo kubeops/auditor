@@ -31,10 +31,10 @@ const (
 	Subject = "ClusterEvents"
 )
 
-func PublishEvent(client cloudevents.Client, obj string) error {
-	fmt.Println(obj)
+func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
+	fmt.Println(string(obj))
 	event := cloudevents.NewEvent()
-	setEventDefaults(&event)
+	setEventDefaults(&event, op)
 	if err := event.SetData("application/json", obj); err != nil {
 		return err
 	}
@@ -48,10 +48,10 @@ func PublishEvent(client cloudevents.Client, obj string) error {
 	return nil
 }
 
-func setEventDefaults(event *eventz.Event) {
+func setEventDefaults(event *eventz.Event, op string) {
 	event.SetID(uuid.New().String())
 	event.SetSubject(Subject)
-	event.SetType("cluster.event")
+	event.SetType("cluster.event." + op)
 	event.SetSource("kubeshield.dev/auditor")
 	event.SetTime(time.Now())
 }

@@ -32,7 +32,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog"
 	"kmodules.xyz/client-go/tools/clusterid"
-	"sigs.k8s.io/yaml"
 )
 
 func (c *AuditorController) initWatchers() error {
@@ -51,13 +50,15 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			fmt.Println("Add Func: ", u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
-			data, err := yaml.Marshal(u)
+
+			data, err := u.MarshalJSON()
+			//data, err := yaml.Marshal(u)
 			if err != nil {
+				log.Errorf("Error occurred while marshaling json, reason: %v", err)
 				return
 			}
-			if err = receiver.PublishEvent(c.cloudEventsClient, string(data)); err != nil {
-				log.Error(err)
+			if err = receiver.PublishEvent(c.cloudEventsClient, "create", data); err != nil {
+				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
@@ -69,14 +70,19 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			//fmt.Println(uOld.GetName(), "generation: ", uOld.GetGeneration(), "<==>", uNew.GetName(), "generation: ", uNew.GetGeneration())
 			if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
 				return
 			}
-			fmt.Println("Update Func: ", uNew.GetObjectKind().GroupVersionKind(), uNew.GetUID(), uNew.GetName(), uNew.GetGeneration())
-			//if data, err := yaml.Marshal(u); err == nil {
-			//	fmt.Println(string(data))
-			//}
+
+			data, err := uNew.MarshalJSON()
+			if err != nil {
+				log.Errorf("Error occurred while marshaling json, reason: %v", err)
+				return
+			}
+			if err = receiver.PublishEvent(c.cloudEventsClient, "update", data); err != nil {
+				log.Errorf("Error while publishing event, reason: %v", err)
+			}
+
 		},
 		DeleteFunc: func(obj interface{}) {
 			if d, ok := obj.(cache.DeletedFinalStateUnknown); ok {
@@ -87,7 +93,15 @@ func (c *AuditorController) initWatchers() error {
 			if !ok {
 				return
 			}
-			fmt.Println(u.GetObjectKind().GroupVersionKind(), u.GetUID(), u.GetName(), u.GetGeneration())
+
+			data, err := u.MarshalJSON()
+			if err != nil {
+				log.Errorf("Error occurred while marshaling json, reason: %v", err)
+				return
+			}
+			if err = receiver.PublishEvent(c.cloudEventsClient, "delete", data); err != nil {
+				log.Errorf("Error while publishing event, reason: %v", err)
+			}
 		},
 	}
 

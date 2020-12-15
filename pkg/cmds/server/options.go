@@ -26,12 +26,11 @@ import (
 	"kubeshield.dev/auditor/pkg/controller"
 	"kubeshield.dev/auditor/pkg/controller/receiver"
 
-	natsevents "github.com/cloudevents/sdk-go/protocol/nats/v2"
+	cnats "github.com/cloudevents/sdk-go/protocol/nats/v2"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/pflag"
 	"gomodules.xyz/x/log"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
@@ -123,7 +122,7 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	}
 	log.Infof("Nats connection established to %s", cfg.ReceiverAddress)
 
-	sender, err := natsevents.NewSenderFromConn(cfg.NatsClient, receiver.Subject)
+	sender, err := cnats.NewSenderFromConn(cfg.NatsClient, receiver.Subject)
 	if err != nil {
 		return err
 	}
@@ -132,62 +131,5 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 
-	return nil
-}
-
-func setDefaultPolicies(policy *v1alpha1.AuditRegistration) error {
-	policy = &v1alpha1.AuditRegistration{
-		TypeMeta: v1.TypeMeta{
-			Kind:       v1alpha1.ResourceKindAuditRegistration,
-			APIVersion: v1alpha1.SchemeGroupVersion.String(),
-		},
-		Resources: []v1alpha1.GroupResources{
-			{
-				Group:     "apps",
-				Resources: []string{"deployments"},
-			},
-			{
-				Resources: []string{"pods", "namespaces", "secrets"},
-			},
-			{
-				Group:     "appcatalog.appscode.com",
-				Resources: []string{"appbindings"},
-			},
-			{
-				Group:     "catalog.kubedb.com",
-				Resources: []string{"etcdversions", "mysqlversions", "redisversions", "mongodbversions", "postgresversions", "memcachedversions", "elasticsearchversions"},
-			},
-			{
-				Group:     "cloud.bytebuilders.dev",
-				Resources: []string{"credentials", "machinetypes", "cloudproviders", "clusterinfos", "clusteruserauths", "clusterauthinfotemplates"},
-			},
-			{
-				Group:     "kubedb.com",
-				Resources: []string{"etcds", "mysqls", "redises", "mongodbs", "snapshots", "memcacheds", "postgreses", "elasticsearches", "dormantdatabases"},
-			},
-			{
-				Group:     "kubepack.com",
-				Resources: []string{"plans", "products"},
-			},
-			{
-				Group:     "monitoring.appscode.com",
-				Resources: []string{"incidents", "podalerts", "nodealerts", "clusteralerts", "searchlightplugins"},
-			},
-			{
-				Group:     "stash.appscode.com",
-				Resources: []string{"tasks", "restics", "functions", "recoveries", "repositories", "backupbatches", "backupsessions", "restoresessions", "backupblueprints", "backupconfigurations"},
-			},
-			{
-				Group:     "voyager.appscode.com",
-				Resources: []string{"ingresses", "certificates"},
-			},
-		},
-	}
-
-	data, err := yaml.Marshal(policy)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(data))
 	return nil
 }
