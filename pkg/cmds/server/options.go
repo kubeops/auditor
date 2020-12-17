@@ -69,7 +69,6 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 
 	fs.StringVar(&s.ReceiverAddress, "receiver-addr", s.ReceiverAddress, "Receiver endpoint address")
 	fs.StringVar(&s.ReceiverCredentialFile, "receiver-credential-file", s.ReceiverCredentialFile, "Token used to authenticate with receiver")
-	fmt.Println("receiver-credential-file: ", s.ReceiverCredentialFile)
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")

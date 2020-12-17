@@ -18,7 +18,6 @@ package receiver
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -31,8 +30,8 @@ const (
 	Subject = "ClusterEvents"
 )
 
+// PublishEvent sends the events to receiver server
 func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
-	fmt.Println(string(obj))
 	event := cloudevents.NewEvent()
 	setEventDefaults(&event, op)
 	if err := event.SetData("application/json", obj); err != nil {

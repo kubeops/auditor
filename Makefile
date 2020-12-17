@@ -478,9 +478,9 @@ install:
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \
-		--set-file auditor.policy=$(POLICYFILE_PATH) \
-		--set auditor.receiverAddr="nats://classic-server.nats.svc" \
-		--set-file auditor.receiverCredential=$(CREDENTIAL_PATH) \
+		--set-file watcher.policy=$(POLICYFILE_PATH) \
+		--set watcher.receiverAddr="nats://classic-server.nats.svc" \
+		--set-file watcher.receiverCredential=$(CREDENTIAL_PATH) \
 		$(IMAGE_PULL_SECRETS); \
 
 .PHONY: uninstall
