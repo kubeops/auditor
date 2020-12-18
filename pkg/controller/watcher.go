@@ -58,7 +58,7 @@ func (c *AuditorController) initWatchers() error {
 				return
 			}
 
-			op := strings.Join([]string{cid, u.GroupVersionKind().GroupKind().String(), u.GetNamespace(), u.GetName(), "create"}, ".")
+			op := strings.Join([]string{cid, u.GroupVersionKind().Group, u.GroupVersionKind().Version, u.GetNamespace(), u.GroupVersionKind().Kind, u.GetName(), "create"}, ".")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
@@ -82,7 +82,7 @@ func (c *AuditorController) initWatchers() error {
 				return
 			}
 
-			op := strings.Join([]string{cid, uNew.GroupVersionKind().GroupKind().String(), uNew.GetNamespace(), uNew.GetName(), "update"}, ".")
+			op := strings.Join([]string{cid, uNew.GroupVersionKind().Group, uNew.GroupVersionKind().Version, uNew.GetNamespace(), uNew.GroupVersionKind().Kind, uNew.GetName(), "update"}, ".")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
@@ -104,7 +104,7 @@ func (c *AuditorController) initWatchers() error {
 				return
 			}
 
-			op := strings.Join([]string{cid, u.GroupVersionKind().GroupKind().String(), u.GetNamespace(), u.GetName(), "delete"}, ".")
+			op := strings.Join([]string{cid, u.GroupVersionKind().Group, u.GroupVersionKind().Version, u.GetNamespace(), u.GroupVersionKind().Kind, u.GetName(), "delete"}, ".")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}

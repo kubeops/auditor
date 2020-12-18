@@ -468,6 +468,7 @@ else
 endif
 
 POLICYFILE_PATH ?= ""
+RECEIVER_ADDR 	?= "nats://classic-server.nats.svc"
 CREDENTIAL_PATH ?= ""
 
 .PHONY: install
@@ -479,7 +480,7 @@ install:
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \
 		--set-file watcher.policy=$(POLICYFILE_PATH) \
-		--set watcher.receiverAddr="nats://classic-server.nats.svc" \
+		--set watcher.receiverAddr=$(RECEIVER_ADDR) \
 		--set-file watcher.receiverCredential=$(CREDENTIAL_PATH) \
 		$(IMAGE_PULL_SECRETS); \
 
