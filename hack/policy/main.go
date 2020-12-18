@@ -20,12 +20,11 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"sigs.k8s.io/yaml"
+	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
 
 	"gomodules.xyz/x/ioutil"
-
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
+	"sigs.k8s.io/yaml"
 )
 
 var (

@@ -57,7 +57,9 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorf("Error occurred while marshaling json, reason: %v", err)
 				return
 			}
-			if err = receiver.PublishEvent(c.cloudEventsClient, "create", data); err != nil {
+
+			op := strings.Join([]string{cid, u.GroupVersionKind().GroupKind().String(), u.GetNamespace(), u.GetName(), "create"}, ".")
+			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
@@ -79,7 +81,9 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorf("Error occurred while marshaling json, reason: %v", err)
 				return
 			}
-			if err = receiver.PublishEvent(c.cloudEventsClient, "update", data); err != nil {
+
+			op := strings.Join([]string{cid, uNew.GroupVersionKind().GroupKind().String(), uNew.GetNamespace(), uNew.GetName(), "update"}, ".")
+			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 
@@ -99,7 +103,9 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorf("Error occurred while marshaling json, reason: %v", err)
 				return
 			}
-			if err = receiver.PublishEvent(c.cloudEventsClient, "delete", data); err != nil {
+
+			op := strings.Join([]string{cid, u.GroupVersionKind().GroupKind().String(), u.GetNamespace(), u.GetName(), "delete"}, ".")
+			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},

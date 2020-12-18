@@ -50,7 +50,7 @@ func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
 func setEventDefaults(event *eventz.Event, op string) {
 	event.SetID(uuid.New().String())
 	event.SetSubject(Subject)
-	event.SetType("cluster.event." + op)
+	event.SetType(op)
 	event.SetSource("kubeshield.dev/auditor")
 	event.SetTime(time.Now())
 }
