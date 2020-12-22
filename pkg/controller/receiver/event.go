@@ -42,7 +42,7 @@ func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
 		log.Printf("failed to send: %v", result.Error())
 		return result
 	}
-	log.Printf("Published event to channel `%s` and acknoledged: %v", Subject, cloudevents.IsACK(result))
+	log.Printf("Published event `%s` to channel `%s` and acknoledged: %v", op, Subject, cloudevents.IsACK(result))
 
 	return nil
 }

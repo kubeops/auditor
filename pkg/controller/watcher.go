@@ -57,8 +57,16 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorf("Error occurred while marshaling json, reason: %v", err)
 				return
 			}
+			m, err := mapper.RESTMapping(schema.GroupKind{
+				Group: u.GroupVersionKind().Group,
+				Kind:  u.GroupVersionKind().Kind,
+			}, u.GroupVersionKind().Version)
+			if err != nil {
+				log.Errorln(err)
+			}
+			gvr := m.Resource
 
-			op := strings.Join([]string{cid, u.GroupVersionKind().Group, u.GroupVersionKind().Version, u.GetNamespace(), u.GroupVersionKind().Kind, u.GetName(), "create"}, ".")
+			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "create"}, "$")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
@@ -82,7 +90,16 @@ func (c *AuditorController) initWatchers() error {
 				return
 			}
 
-			op := strings.Join([]string{cid, uNew.GroupVersionKind().Group, uNew.GroupVersionKind().Version, uNew.GetNamespace(), uNew.GroupVersionKind().Kind, uNew.GetName(), "update"}, ".")
+			m, err := mapper.RESTMapping(schema.GroupKind{
+				Group: uNew.GroupVersionKind().Group,
+				Kind:  uNew.GroupVersionKind().Kind,
+			}, uNew.GroupVersionKind().Version)
+			if err != nil {
+				log.Errorln(err)
+			}
+			gvr := m.Resource
+
+			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, uNew.GetNamespace(), uNew.GetName(), "update"}, "$")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
@@ -104,7 +121,16 @@ func (c *AuditorController) initWatchers() error {
 				return
 			}
 
-			op := strings.Join([]string{cid, u.GroupVersionKind().Group, u.GroupVersionKind().Version, u.GetNamespace(), u.GroupVersionKind().Kind, u.GetName(), "delete"}, ".")
+			m, err := mapper.RESTMapping(schema.GroupKind{
+				Group: u.GroupVersionKind().Group,
+				Kind:  u.GroupVersionKind().Kind,
+			}, u.GroupVersionKind().Version)
+			if err != nil {
+				log.Errorln(err)
+			}
+			gvr := m.Resource
+
+			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "delete"}, "$")
 			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
