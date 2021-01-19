@@ -1,0 +1,109 @@
+apiVersion: kubedb.com/v1alpha2
+kind: Elasticsearch
+metadata:
+    name: es
+    namespace: kube-system
+spec:
+    authSecret:
+        name: es-elastic-cred
+    podTemplate:
+        spec:
+            affinity:
+                podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                        - podAffinityTerm:
+                              labelSelector:
+                                  matchExpressions:
+                                      - key: ${NODE_ROLE}
+                                        operator: Exists
+                                  matchLabels:
+                                      kubedb.com/kind: Elasticsearch
+                                      kubedb.com/name: es
+                              namespaces:
+                                  - demo
+                              topologyKey: kubernetes.io/hostname
+                          weight: 100
+                        - podAffinityTerm:
+                              labelSelector:
+                                  matchExpressions:
+                                      - key: ${NODE_ROLE}
+                                        operator: Exists
+                                  matchLabels:
+                                      kubedb.com/kind: Elasticsearch
+                                      kubedb.com/name: es
+                              namespaces:
+                                  - demo
+                              topologyKey: failure-domain.beta.kubernetes.io/zone
+                          weight: 50
+            serviceAccountName: es
+    storageType: Durable
+    terminationPolicy: WipeOut
+    tls:
+        certificates:
+            - alias: ca
+              privateKey:
+                  encoding: PKCS8
+              secretName: es-ca-cert
+              subject:
+                  organizations:
+                      - kubedb
+            - alias: transport
+              privateKey:
+                  encoding: PKCS8
+              secretName: es-transport-cert
+              subject:
+                  organizations:
+                      - kubedb
+    topology:
+        data:
+            prefix: data
+            replicas: 1
+            resources:
+                limits:
+                    cpu: 600m
+                    memory: 256Mi
+                requests:
+                    cpu: 300m
+                    memory: 256Mi
+            storage:
+                accessModes:
+                    - ReadWriteOnce
+                resources:
+                    requests:
+                        storage: 1Gi
+                storageClassName: topolvm-provisioner
+        ingest:
+            prefix: client
+            replicas: 1
+            resources:
+                limits:
+                    cpu: 600m
+                    memory: 512Mi
+                requests:
+                    cpu: 300m
+                    memory: 256Mi
+            storage:
+                accessModes:
+                    - ReadWriteOnce
+                resources:
+                    requests:
+                        storage: 1Gi
+                storageClassName: topolvm-provisioner
+        master:
+            prefix: master
+            replicas: 50000000
+            resources:
+                limits:
+                    cpu: 600m
+                    memory: 512Mi
+                requests:
+                    cpu: 300m
+                    memory: 256Mi
+            storage:
+                accessModes:
+                    - ReadWriteOnce
+                resources:
+                    requests:
+                        storage: 1Gi
+                storageClassName: topolvm-provisioner
+    version: 7.4.2-xpack

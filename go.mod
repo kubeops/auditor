@@ -1,61 +1,42 @@
 module kubeshield.dev/auditor
 
-go 1.13
+go 1.15
 
 require (
-	cloud.google.com/go v0.56.0 // indirect
-	github.com/Azure/go-autorest/autorest v0.10.2 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.8.3 // indirect
-	github.com/NYTimes/gziphandler v1.1.1 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cloudevents/sdk-go/protocol/nats/v2 v2.3.1
 	github.com/cloudevents/sdk-go/v2 v2.3.1
-	github.com/go-openapi/spec v0.19.8
-	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
+	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
-	github.com/googleapis/gnostic v0.4.0 // indirect
-	github.com/gophercloud/gophercloud v0.11.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.14.6 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/imdario/mergo v0.3.6 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/mitchellh/mapstructure v1.4.0 // indirect
-	github.com/nats-io/jwt v1.2.2 // indirect
-	github.com/nats-io/nats-server/v2 v2.1.9 // indirect
-	github.com/nats-io/nats.go v1.10.1-0.20200606002146-fc6fed82929a
+	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
+	github.com/nats-io/nats.go v1.10.0
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
-	github.com/prometheus/client_golang v1.6.0 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
-	go.opencensus.io v0.22.5 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.16.0 // indirect
-	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
-	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
-	golang.org/x/tools v0.0.0-20201208233053-a543418bbed2 // indirect
-	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209 // indirect
+	github.com/stripe/stripe-go/v72 v72.34.0
+	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
 	gomodules.xyz/x v0.0.0-20201105065653-91c568df6331
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/genproto v0.0.0-20200603110839-e855014d5736 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
 	k8s.io/api v0.18.9
 	k8s.io/apimachinery v0.18.9
 	k8s.io/apiserver v0.18.9
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
-	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
-	kmodules.xyz/client-go v0.0.0-20210213000708-f480974ce46d
+	k8s.io/kubernetes v1.18.9
+	kmodules.xyz/client-go v0.0.0-20210218100652-8f345ddfe801
+	kmodules.xyz/resource-metadata v0.4.12
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 	sigs.k8s.io/yaml v1.2.0
+)
+
+replace (
+	github.com/go-macaron/binding => github.com/gomodules/binding v0.0.0-20200226114658-71565367f820
+	gopkg.in/macaron.v1 => github.com/gomodules/macaron v1.3.2
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
@@ -147,3 +128,8 @@ replace k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5
 replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.19.0-alpha.0.0.20200922200158-8b13196d8dc4
 
 replace k8s.io/utils => k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89
+
+replace (
+	github.com/docker/docker => github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
+	helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.0.3-0.20200119202455-afb1ef54d569
+)

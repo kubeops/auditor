@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build go1.7
+
 // A Go client for the NATS messaging system (https://nats.io).
 package nats
 
@@ -19,33 +21,9 @@ import (
 	"reflect"
 )
 
-// RequestMsgWithContext takes a context, a subject and payload
-// in bytes and request expecting a single response.
-func (nc *Conn) RequestMsgWithContext(ctx context.Context, msg *Msg) (*Msg, error) {
-	var hdr []byte
-	var err error
-
-	if len(msg.Header) > 0 {
-		if !nc.info.Headers {
-			return nil, ErrHeadersNotSupported
-		}
-
-		hdr, err = msg.headerBytes()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return nc.requestWithContext(ctx, msg.Subject, hdr, msg.Data)
-}
-
 // RequestWithContext takes a context, a subject and payload
 // in bytes and request expecting a single response.
 func (nc *Conn) RequestWithContext(ctx context.Context, subj string, data []byte) (*Msg, error) {
-	return nc.requestWithContext(ctx, subj, nil, data)
-}
-
-func (nc *Conn) requestWithContext(ctx context.Context, subj string, hdr, data []byte) (*Msg, error) {
 	if ctx == nil {
 		return nil, ErrInvalidContext
 	}
@@ -62,10 +40,10 @@ func (nc *Conn) requestWithContext(ctx context.Context, subj string, hdr, data [
 	// If user wants the old style.
 	if nc.Opts.UseOldRequestStyle {
 		nc.mu.Unlock()
-		return nc.oldRequestWithContext(ctx, subj, hdr, data)
+		return nc.oldRequestWithContext(ctx, subj, data)
 	}
 
-	mch, token, err := nc.createNewRequestAndSend(subj, hdr, data)
+	mch, token, err := nc.createNewRequestAndSend(subj, data)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +67,7 @@ func (nc *Conn) requestWithContext(ctx context.Context, subj string, hdr, data [
 }
 
 // oldRequestWithContext utilizes inbox and subscription per request.
-func (nc *Conn) oldRequestWithContext(ctx context.Context, subj string, hdr, data []byte) (*Msg, error) {
+func (nc *Conn) oldRequestWithContext(ctx context.Context, subj string, data []byte) (*Msg, error) {
 	inbox := NewInbox()
 	ch := make(chan *Msg, RequestChanLen)
 
@@ -100,7 +78,7 @@ func (nc *Conn) oldRequestWithContext(ctx context.Context, subj string, hdr, dat
 	s.AutoUnsubscribe(1)
 	defer s.Unsubscribe()
 
-	err = nc.publish(subj, inbox, hdr, data)
+	err = nc.PublishRequest(subj, inbox, data)
 	if err != nil {
 		return nil, err
 	}

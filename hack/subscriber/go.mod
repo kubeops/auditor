@@ -8,6 +8,7 @@ require (
 	github.com/golangplus/testing v1.0.0
 	github.com/hokaccha/go-prettyjson v0.0.0-20190818114111-108c894c2c0e // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
+	github.com/stripe/stripe-go/v72 v72.28.0
 	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
 	k8s.io/apimachinery v0.20.1
 	k8s.io/kubernetes v0.0.0-00010101000000-000000000000

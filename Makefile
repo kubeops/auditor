@@ -580,6 +580,11 @@ run:
 		--authentication-kubeconfig=$(KUBECONFIG) \
 		--authentication-skip-lookup
 
+.PHONY: usage
+usage:
+	GO111MODULE=on go run -mod=vendor ./cmd/auditor usage \
+		--server="nats://localhost:4222"
+
 # make and load docker image to kind cluster
 .PHONY: push-to-kind
 push-to-kind: container

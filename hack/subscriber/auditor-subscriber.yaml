@@ -17,5 +17,5 @@ spec:
     spec:
       containers:
         - name: auditor-subscriber
-          image: masudjuly02/auditor-subscriber:alpha3
-          args: ["nats://classic-server.nats.svc:4222"]
+          image: masudjuly02/auditor:nats-integration_linux_amd64
+          args: ["usage", "--server", "nats://classic-server.nats.svc:4222"]

@@ -116,6 +116,12 @@ github.com/pkg/errors
 github.com/sergi/go-diff/diffmatchpatch
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
+# github.com/stripe/stripe-go/v72 v72.28.0
+## explicit
+github.com/stripe/stripe-go/v72
+github.com/stripe/stripe-go/v72/form
+github.com/stripe/stripe-go/v72/invoice
+github.com/stripe/stripe-go/v72/usagerecord
 # github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
 ## explicit
 github.com/the-redback/go-oneliners
