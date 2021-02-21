@@ -17,7 +17,7 @@ limitations under the License.
 package fuzzer
 
 import (
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
+	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
 
 	fuzz "github.com/google/gofuzz"
 	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"

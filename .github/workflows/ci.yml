@@ -89,7 +89,7 @@ jobs:
   #     - name: Check out installer
   #       run: |
   #         cd ..
-  #         git clone https://github.com/kubeshield/installer.git
+  #         git clone https://github.com/kmodules/installer.git
   #         cd installer
   #         git checkout master
 

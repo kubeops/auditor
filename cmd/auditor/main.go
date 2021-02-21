@@ -19,8 +19,7 @@ package main
 import (
 	"os"
 
-	"kubeshield.dev/auditor/pkg/cmds"
-
+	"kmodules.xyz/auditor/pkg/cmds"
 	"kmodules.xyz/client-go/logs"
 )
 

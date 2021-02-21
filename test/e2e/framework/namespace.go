@@ -19,9 +19,10 @@ package framework
 import (
 	"context"
 
+	meta_util "kmodules.xyz/client-go/meta"
+
 	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	meta_util "kmodules.xyz/client-go/meta"
 )
 
 func (f *Framework) Namespace() string {

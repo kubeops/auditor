@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
+	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
 
 	"gomodules.xyz/x/ioutil"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"

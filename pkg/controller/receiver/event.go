@@ -51,6 +51,6 @@ func setEventDefaults(event *eventz.Event, op string) {
 	event.SetID(uuid.New().String())
 	event.SetSubject(Subject)
 	event.SetType(op)
-	event.SetSource("kubeshield.dev/auditor")
+	event.SetSource("kmodules.xyz/auditor")
 	event.SetTime(time.Now())
 }

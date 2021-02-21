@@ -20,15 +20,15 @@ import (
 	"flag"
 	"os"
 
-	"kubeshield.dev/auditor/apis/auditor/install"
+	"kmodules.xyz/auditor/apis/auditor/install"
+	"kmodules.xyz/client-go/logs"
+	"kmodules.xyz/client-go/tools/cli"
 
 	"github.com/spf13/cobra"
 	"gomodules.xyz/x/flags"
 	v "gomodules.xyz/x/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
-	"kmodules.xyz/client-go/logs"
-	"kmodules.xyz/client-go/tools/cli"
 )
 
 func NewRootCmd() *cobra.Command {

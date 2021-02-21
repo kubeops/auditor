@@ -14,7 +14,7 @@
 
 SHELL=/bin/bash -o pipefail
 
-GO_PKG   := kubeshield.dev
+GO_PKG   := kmodules.xyz
 REPO     := $(notdir $(shell pwd))
 BIN      := auditor
 COMPRESS ?= no
@@ -25,7 +25,7 @@ CODE_GENERATOR_IMAGE ?= appscode/gengo:release-1.18
 API_GROUPS           ?= auditor:v1alpha1
 
 # Where to push the docker image.
-REGISTRY ?= kubeshield
+REGISTRY ?= appscode
 
 # This version-strategy uses git tags to set the version string
 git_branch       := $(shell git rev-parse --abbrev-ref HEAD)
@@ -203,7 +203,7 @@ gen-crds:
 			paths="./apis/..."              \
 			output:crd:artifacts:config=crds
 
-crds_to_patch := auditor.kubeshield.cloud_dashboards.yaml
+crds_to_patch := auditor.kmodules.cloud_dashboards.yaml
 
 .PHONY: patch-crds
 patch-crds: $(addprefix patch-crd-, $(crds_to_patch))
@@ -215,8 +215,8 @@ patch-crd-%: $(BUILD_DIRS)
 .PHONY: label-crds
 label-crds: $(BUILD_DIRS)
 	@for f in crds/*.yaml; do \
-		echo "applying app.kubernetes.io/name=kubeshield label to $$f"; \
-		kubectl label --overwrite -f $$f --local=true -o yaml app.kubernetes.io/name=kubeshield > bin/crd.yaml; \
+		echo "applying app.kubernetes.io/name=kmodules label to $$f"; \
+		kubectl label --overwrite -f $$f --local=true -o yaml app.kubernetes.io/name=kmodules > bin/crd.yaml; \
 		mv bin/crd.yaml $$f; \
 	done
 
@@ -238,7 +238,7 @@ gen-crd-protos-%:
 			--proto-import=$(DOCKER_REPO_ROOT)/vendor    \
 			--proto-import=$(DOCKER_REPO_ROOT)/third_party/protobuf \
 			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
-			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kubeshield.dev/auditor/apis/$(subst _,/,$*)
+			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kmodules.xyz/auditor/apis/$(subst _,/,$*)
 
 .PHONY: gen-bindata
 gen-bindata:
@@ -491,7 +491,7 @@ uninstall:
 
 .PHONY: purge
 purge: uninstall
-	kubectl delete crds -l app.kubernetes.io/name=kubeshield
+	kubectl delete crds -l app.kubernetes.io/name=kmodules
 
 .PHONY: dev
 dev: gen fmt push

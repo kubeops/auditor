@@ -20,7 +20,9 @@ import (
 	"fmt"
 	"strings"
 
-	"kubeshield.dev/auditor/pkg/controller"
+	"kmodules.xyz/auditor/pkg/controller"
+	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
+	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
 
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -31,8 +33,6 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
-	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
 )
 
 var (

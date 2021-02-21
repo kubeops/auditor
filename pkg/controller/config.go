@@ -19,8 +19,9 @@ package controller
 import (
 	"time"
 
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
-	"kubeshield.dev/auditor/pkg/eventer"
+	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
+	"kmodules.xyz/auditor/pkg/eventer"
+	"kmodules.xyz/client-go/discovery"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
@@ -28,7 +29,6 @@ import (
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"kmodules.xyz/client-go/discovery"
 )
 
 type config struct {

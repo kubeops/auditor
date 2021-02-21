@@ -21,18 +21,18 @@ import (
 	"io"
 	"net"
 
-	"kubeshield.dev/auditor/pkg/controller"
-	"kubeshield.dev/auditor/pkg/server"
+	"kmodules.xyz/auditor/pkg/controller"
+	"kmodules.xyz/auditor/pkg/server"
+	"kmodules.xyz/client-go/meta"
+	"kmodules.xyz/client-go/tools/clientcmd"
 
 	"github.com/spf13/pflag"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
-	"kmodules.xyz/client-go/meta"
-	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
-const defaultEtcdPathPrefix = "/registry/auditor.kubeshield.cloud"
+const defaultEtcdPathPrefix = "/registry/auditor.kmodules.cloud"
 
 type AuditorOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions

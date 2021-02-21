@@ -19,12 +19,12 @@ package cmds
 import (
 	"io"
 
-	"kubeshield.dev/auditor/pkg/cmds/server"
+	"kmodules.xyz/auditor/pkg/cmds/server"
+	"kmodules.xyz/client-go/tools/cli"
 
 	"github.com/spf13/cobra"
 	"gomodules.xyz/x/log"
 	v "gomodules.xyz/x/version"
-	"kmodules.xyz/client-go/tools/cli"
 )
 
 func NewCmdRun(out, errOut io.Writer, stopCh <-chan struct{}) *cobra.Command {

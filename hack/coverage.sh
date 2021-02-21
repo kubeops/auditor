@@ -17,7 +17,7 @@
 set -eou pipefail
 
 GOPATH=$(go env GOPATH)
-REPO_ROOT="$GOPATH/src/kubeshield.dev/auditor"
+REPO_ROOT="$GOPATH/src/kmodules.xyz/auditor"
 
 pushd $REPO_ROOT
 

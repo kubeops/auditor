@@ -18,7 +18,7 @@ WORKDIR /auditor-subscriber
 COPY . .
 #COPY ../../vendor .
 
-#RUN go mod init kubeshield.dev/auditor && go mod tidy
+#RUN go mod init kmodules.xyz/auditor && go mod tidy
 #RUN go get -u kmodules.xyz/resource-metadata@resource-requirements
 #RUN go mod tidy && go mod vendor
 RUN go build -o auditor-subscriber -mod=vendor

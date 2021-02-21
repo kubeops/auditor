@@ -1,4 +1,4 @@
-module kubeshield.dev/auditor
+module kmodules.xyz/auditor
 
 go 1.15
 

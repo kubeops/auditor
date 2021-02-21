@@ -22,9 +22,10 @@ import (
 	"io/ioutil"
 	"time"
 
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
-	"kubeshield.dev/auditor/pkg/controller"
-	"kubeshield.dev/auditor/pkg/controller/receiver"
+	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
+	"kmodules.xyz/auditor/pkg/controller"
+	"kmodules.xyz/auditor/pkg/controller/receiver"
+	"kmodules.xyz/client-go/tools/clusterid"
 
 	cnats "github.com/cloudevents/sdk-go/protocol/nats/v2"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -33,7 +34,6 @@ import (
 	"gomodules.xyz/x/log"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"kmodules.xyz/client-go/tools/clusterid"
 	"sigs.k8s.io/yaml"
 )
 

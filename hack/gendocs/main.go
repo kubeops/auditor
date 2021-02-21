@@ -26,7 +26,7 @@ import (
 	"strings"
 	"text/template"
 
-	"kubeshield.dev/auditor/pkg/cmds"
+	"kmodules.xyz/auditor/pkg/cmds"
 
 	"github.com/spf13/cobra/doc"
 	"gomodules.xyz/runtime"

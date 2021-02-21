@@ -20,7 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"kubeshield.dev/auditor/pkg/cmds/server"
+	"kmodules.xyz/auditor/pkg/cmds/server"
 
 	"k8s.io/client-go/util/homedir"
 )
