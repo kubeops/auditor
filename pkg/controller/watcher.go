@@ -71,6 +71,9 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
+
+		// TODO: Here only updated yaml is sent
+		// TODO: Previous yaml also to be sent
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			uOld, ok := oldObj.(*unstructured.Unstructured)
 			if !ok {

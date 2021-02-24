@@ -11,14 +11,33 @@ require (
 	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
+	github.com/googleapis/gnostic v0.4.0 // indirect
+	github.com/gophercloud/gophercloud v0.11.0 // indirect
+	github.com/gregjones/httpcache v0.0.0-20181110185634-c63ab54fda8f // indirect
+	github.com/grpc-ecosystem/grpc-gateway v1.14.6 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
-	github.com/nats-io/nats.go v1.10.0
+	github.com/imdario/mergo v0.3.8 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/mitchellh/mapstructure v1.4.0 // indirect
+	github.com/nats-io/jsm.go v0.0.20
+	github.com/nats-io/jwt v1.2.2 // indirect
+	github.com/nats-io/nats-server/v2 v2.1.9 // indirect
+	github.com/nats-io/nats.go v1.10.1-0.20201111151633-9e1f4a0d80d8
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stripe/stripe-go/v72 v72.34.0
 	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
+	go.opencensus.io v0.22.5 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.16.0 // indirect
+	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
+	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
+	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
+	golang.org/x/tools v0.0.0-20201208233053-a543418bbed2 // indirect
+	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209 // indirect
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
 	gomodules.xyz/x v0.0.0-20201105065653-91c568df6331
 	k8s.io/api v0.18.9
@@ -133,3 +152,5 @@ replace (
 	github.com/docker/docker => github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
 	helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.0.3-0.20200119202455-afb1ef54d569
 )
+
+replace github.com/cloudevents/sdk-go/protocol/nats/v2 => github.com/tamalsaha/sdk-go/protocol/nats/v2 v2.2.1-0.20200831050400-1774999bfbb7

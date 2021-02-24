@@ -97,6 +97,7 @@ func ReportUsage() {
 		}
 	}
 }
+
 func calculateTotalQuantity(now, last int64, q []Limit) int64 {
 	sort.Slice(q, func(i, j int) bool { return q[i].Time > q[j].Time })
 	idx := sort.Search(len(q), func(i int) bool { return q[i].Time >= last })

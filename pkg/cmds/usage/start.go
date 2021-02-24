@@ -38,20 +38,32 @@ import (
 )
 
 type NatsOptions struct {
-	Server         string
-	CredentialFile string
-	Subject        string
+	ClassicServer         string
+	ClassicCredentialFile string
+	Subject               string
+
+	JetstreamServer  string
+	JSCredentialFile string
+	JSStream         string
+	JSConsumer       string
+	JSSubject        string
 }
 
 func NewNatsOptions() *NatsOptions {
 	return &NatsOptions{
-		Server:  "nats://localhost:4222",
-		Subject: "ClusterEvents",
+		ClassicServer: "nats://localhost:4222",
+		Subject:       "ClusterEvents",
 	}
 }
+
+var (
+	JSClient  *nats.Conn
+	JSSubject string
+)
+
 func (opts *NatsOptions) AddGoFlags(fs *flag.FlagSet) {
-	fs.StringVar(&opts.Server, "server", opts.Server, "Nats server endpoint")
-	fs.StringVar(&opts.CredentialFile, "credential-file", opts.CredentialFile, "User credential for connecting to nats server")
+	fs.StringVar(&opts.ClassicServer, "server", opts.ClassicServer, "Nats server endpoint")
+	fs.StringVar(&opts.ClassicCredentialFile, "credential-file", opts.ClassicCredentialFile, "User credential for connecting to nats server")
 	fs.StringVar(&opts.Subject, "subject", opts.Subject, "Channel name from which events to be listened")
 }
 
@@ -62,24 +74,30 @@ func (opts *NatsOptions) AddFlags(fs *pflag.FlagSet) {
 }
 
 func (opts *NatsOptions) StartNatsSubscription() {
-	fmt.Println("Server", "<==>", opts.Server)
+	fmt.Println("Server", "<==>", opts.ClassicServer)
 	fmt.Println("Subject", "<==>", opts.Subject)
 	var natsOpts = []nats.Option{nats.Name("Usage Report")}
-	if len(opts.CredentialFile) > 0 {
-		natsOpts = append(natsOpts, nats.UserCredentials(opts.CredentialFile))
+	if len(opts.ClassicCredentialFile) > 0 {
+		natsOpts = append(natsOpts, nats.UserCredentials(opts.ClassicCredentialFile))
 	}
 
-	con, err := cnats.NewConsumer(opts.Server, opts.Subject, cnats.NatsOptions(natsOpts...))
+	con, err := cnats.NewConsumer(opts.ClassicServer, opts.Subject, cnats.NatsOptions(natsOpts...))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer con.Close(context.Background())
-	log.Printf("Connected to nats server: %s\n", opts.Server)
+	log.Printf("Connected to nats server: %s\n", opts.ClassicServer)
 
 	client, err := cloudevents.NewClient(con)
 	if err != nil {
 		panic(err)
 	}
+
+	JSClient, _, err = Connect(opts)
+	if err != nil {
+		panic(err)
+	}
+	JSSubject = opts.JSSubject
 
 	go ReportUsage()
 
@@ -234,6 +252,36 @@ func processEvents(ctx context.Context, event cloudevents.Event) error {
 	//}
 	//raw.LastReportTime = now.Unix()
 	//usage.Cluster[cid].GroupResource[gr].Resource[rid] = raw
+
+	in := LocalInvoice{
+		Cluster: string(cid),
+		Product: gvr.GroupResource().String(),
+		Instance: ResourceInstance{
+			Namespace: eventType[4],
+			Name:      eventType[5],
+			UID:       string(u.GetUID()),
+		},
+		CurrentState: UsageStatus{
+			CPU:    raw.Limit[len(raw.Limit)-1].CPU.String(),
+			Memory: raw.Limit[len(raw.Limit)-1].Memory.String(),
+			Time:   raw.Limit[len(raw.Limit)-1].Time,
+		},
+	}
+	if eventType[len(eventType)-1] == "delete" {
+		in.PreviousState = UsageStatus{
+			CPU:    raw.Limit[len(raw.Limit)-2].CPU.String(),
+			Memory: raw.Limit[len(raw.Limit)-2].Memory.String(),
+			Time:   raw.Limit[len(raw.Limit)-2].Time,
+		}
+	}
+
+	usageData, err := json.Marshal(in)
+	if err != nil {
+		return err
+	}
+	if err := JSClient.Publish(JSSubject, usageData); err != nil {
+		return err
+	}
 
 	oneliners.PrettyJson(usage, "Total Usage Report")
 	//log.Printf("Usage reported q: %v for %s at %v\n", q, usage.Cluster[cid].GroupResource[gr].SubscriptionItemID, now)
