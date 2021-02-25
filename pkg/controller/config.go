@@ -17,14 +17,22 @@ limitations under the License.
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"time"
 
 	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
 	"kmodules.xyz/auditor/pkg/eventer"
 	"kmodules.xyz/client-go/discovery"
+	"kmodules.xyz/client-go/tools/clusterid"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
+	verifier "go.bytebuilders.dev/license-verifier"
+	"go.bytebuilders.dev/license-verifier/info"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
@@ -62,8 +70,54 @@ func NewConfig(clientConfig *rest.Config) *Config {
 	}
 }
 
+// the api response of the register licensed user api
+type NatsCredential struct {
+	NatsSubject string `json:"natsSubject"`
+	NatsServer  string `json:"natsServer"`
+	Credential  []byte `json:"credential"`
+}
+
 func (c *Config) New() (*AuditorController, error) {
 	if err := discovery.IsDefaultSupportedVersion(c.KubeClient); err != nil {
+		return nil, err
+	}
+
+	clusteruid, err := clusterid.ClusterUID(c.KubeClient.CoreV1().Namespaces())
+	if err != nil {
+		return nil, err
+	}
+	licenseBytes, err := ioutil.ReadFile(c.LicenseFile)
+	if err != nil {
+		return nil, err
+	}
+
+	opts := verifier.Options{
+		ClusterUID:  clusteruid,
+		ProductName: info.ProductName,
+		CACert:      []byte(info.LicenseCA),
+		License:     licenseBytes,
+	}
+	data, err := json.Marshal(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Make URL dynamic
+	url := "https://appscode.ninja/api/v1/register"
+	resp, err := http.Post(url, "application/json", bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var natscred NatsCredential
+	err = json.Unmarshal(buf.Bytes(), &natscred)
+	if err != nil {
 		return nil, err
 	}
 
@@ -77,6 +131,8 @@ func (c *Config) New() (*AuditorController, error) {
 
 		natsClient:        c.NatsClient,
 		cloudEventsClient: c.CloudEventsClient,
+
+		NatsCredential: natscred,
 	}
 
 	if err := ctrl.initWatchers(); err != nil {

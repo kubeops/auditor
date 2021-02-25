@@ -41,6 +41,8 @@ type AuditorController struct {
 	dynamicInformerFactory dynamicinformer.DynamicSharedInformerFactory
 	natsClient             *nats.Conn
 	cloudEventsClient      cloudevents.Client
+
+	NatsCredential NatsCredential
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {
