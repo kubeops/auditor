@@ -663,6 +663,10 @@ github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82/go.mod h1:lgjkn3NuSvDf
 github.com/yudai/pp v2.0.1+incompatible h1:Q4//iY4pNF6yPLZIigmvcl7k/bPgrcTPIFIcmawg5bI=
 github.com/yudai/pp v2.0.1+incompatible/go.mod h1:PuxR/8QJ7cyCkFp/aUDS+JY727OFEZkTdatxwunjIkc=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+go.bytebuilders.dev/license-verifier v0.7.0 h1:4yECFKjyji+40zNUA9jiW4pC2C0k8YOHy2cHCZVb22Y=
+go.bytebuilders.dev/license-verifier v0.7.0/go.mod h1:N7fJxdaBJQ9seOGFg+trJQ3eWwy/ga6YZi0wlvdDQi0=
+go.bytebuilders.dev/license-verifier/kubernetes v0.7.0 h1:58gla1SvxreTnburXGlbKl13Is3IN62eQM4JPmXqDoo=
+go.bytebuilders.dev/license-verifier/kubernetes v0.7.0/go.mod h1:tirEPJlf+upKc6jTEx0486K0Wm0gWuI3aiV+xXmnmSM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3 h1:MUGmc65QhB3pIlaQ5bB4LwqSj6GIonVJXpZiaKNyaKk=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
@@ -767,6 +771,7 @@ golang.org/x/net v0.0.0-20191004110552-13f9640d40b9/go.mod h1:z5CRVTTTmAJ677TzLL
 golang.org/x/net v0.0.0-20191126235420-ef20fe5d7933/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200202094626-16171245cfb2/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e/go.mod h1:qpuaurCH72eLCgpAm/N6yyVIVM9cpaDIP3A8BGJEC5A=
+golang.org/x/net v0.0.0-20200625001655-4c5254603344/go.mod h1:/O7V0waA8r7cgGh81Ro3o1hOxt32SMVPicZroKQ2sZA=
 golang.org/x/net v0.0.0-20201021035429-f5854403a974 h1:IX6qOQeG5uLjB/hjjwjedwfjND0hgjPMMyO1RoIXQNI=
 golang.org/x/net v0.0.0-20201021035429-f5854403a974/go.mod h1:sp8m0HH+o8qH0wwXwYZr8TS3Oi6o0r6Gce1SSxlDquU=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=
@@ -978,6 +983,7 @@ k8s.io/klog v0.0.0-20181102134211-b9b56d5dfc92/go.mod h1:Gq+BEi5rUBO/HRz0bTSXDUc
 k8s.io/klog v0.3.0/go.mod h1:Gq+BEi5rUBO/HRz0bTSXDUcqjScdoY3a9IHpCEIOOfk=
 k8s.io/klog v1.0.0 h1:Pt+yjF5aB1xDSVbau4VsWe+dQNzA0qv1LlXdC2dF6Q8=
 k8s.io/klog v1.0.0/go.mod h1:4Bi6QPql/J/LkTDqv7R/cd3hPo4k2DG6Ptcz060Ez5I=
+k8s.io/kube-aggregator v0.18.9 h1:kqwbA15uygYfLfdMUlyBm/q3OHaYbnirFrg7tGUTVZk=
 k8s.io/kube-aggregator v0.18.9/go.mod h1:ik5Mf6JaP2M9XbWZR/AYgXx2Nj4EDBrHyakUx7C8cdw=
 k8s.io/kube-controller-manager v0.18.9/go.mod h1:ZNrKY2V/vDYVLAqbSjcsgUVNC24JktaaQaeeGmC17Zc=
 k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6 h1:Oh3Mzx5pJ+yIumsAD0MOECPVeXsVot0UkiaCGVyfGQY=
@@ -1000,8 +1006,8 @@ kmodules.xyz/client-go v0.0.0-20210218100652-8f345ddfe801 h1:2seQ02nLJpFdN2dLFy5
 kmodules.xyz/client-go v0.0.0-20210218100652-8f345ddfe801/go.mod h1:GdX1CHOpjL4F8P9O/7dE9m0fIOs05BNHKVT+kM51rk8=
 kmodules.xyz/crd-schema-fuzz v0.0.0-20200521005638-2433a187de95/go.mod h1:jpu8xFsDKd6kAWUAKk8oTu/GQGBWqhrcaDeOJdaCJnk=
 kmodules.xyz/openshift v0.0.0-20201105073146-0da509a7d39f/go.mod h1:vFwB/f5rVH5QoKXb/MN5xndDzYbmip2N8Zn68wgywlk=
-kmodules.xyz/resource-metadata v0.4.12 h1:m6Pubz1VJBksXgOzChfQKCPoo3vuqKgRsq5t7aS5ahQ=
-kmodules.xyz/resource-metadata v0.4.12/go.mod h1:H6VUUjSuusM4SfQY9oRy8WvPJIrDdP/WIevnx9pHeh8=
+kmodules.xyz/resource-metadata v0.4.13-0.20210224134454-fafdd5b120a0 h1:b7mADy5T1nfTp46hPcgPG3uVSf5BHRC/R34YRpMYg/0=
+kmodules.xyz/resource-metadata v0.4.13-0.20210224134454-fafdd5b120a0/go.mod h1:LdkBpeKIZphEezsALiwnH0eTXQwZAKq9YMQhaMU5CsE=
 kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6 h1:9+EIwxUrXrM8QD9rC1Fg+6CQK0vPniFO3ClaKih010M=
 kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6/go.mod h1:xLgewoOzwR5ZrVOHQ2SR0P4E7tgCyBWbYlUawEXgeF4=
 modernc.org/cc v1.0.0/go.mod h1:1Sk4//wdnYJiUIxnW8ddKpaOJCF37yAdqYnkxUpaYxw=

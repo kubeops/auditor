@@ -24,6 +24,7 @@ import (
 	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
 	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
 
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -105,6 +106,9 @@ func (c completedConfig) New() (*Auditor, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	license.NewLicenseEnforcer(c.ExtraConfig.ClientConfig, c.ExtraConfig.LicenseFile).Install(genericServer.Handler.NonGoRestfulMux)
+
 	ctrl, err := c.ExtraConfig.New()
 	if err != nil {
 		return nil, err

@@ -32,6 +32,8 @@ import (
 )
 
 type config struct {
+	LicenseFile string
+
 	Policy v1alpha1.AuditRegistration
 
 	// TODO: Should include full HTTP endpoint options

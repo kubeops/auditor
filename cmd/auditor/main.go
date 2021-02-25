@@ -21,6 +21,10 @@ import (
 
 	"kmodules.xyz/auditor/pkg/cmds"
 	"kmodules.xyz/client-go/logs"
+
+	_ "go.bytebuilders.dev/license-verifier/info"
+	_ "k8s.io/client-go/kubernetes/fake"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 func main() {

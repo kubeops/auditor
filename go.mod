@@ -30,6 +30,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stripe/stripe-go/v72 v72.34.0
 	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
+	go.bytebuilders.dev/license-verifier v0.7.0
+	go.bytebuilders.dev/license-verifier/kubernetes v0.7.0
 	go.opencensus.io v0.22.5 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
@@ -48,7 +50,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 	k8s.io/kubernetes v1.18.9
 	kmodules.xyz/client-go v0.0.0-20210218100652-8f345ddfe801
-	kmodules.xyz/resource-metadata v0.4.12
+	kmodules.xyz/resource-metadata v0.4.13-0.20210224134454-fafdd5b120a0
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 	sigs.k8s.io/yaml v1.2.0
 )

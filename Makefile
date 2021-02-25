@@ -14,6 +14,10 @@
 
 SHELL=/bin/bash -o pipefail
 
+PRODUCT_OWNER_NAME := appscode
+PRODUCT_NAME       := kubedb-community
+ENFORCE_LICENSE    ?=
+
 GO_PKG   := kmodules.xyz
 REPO     := $(notdir $(shell pwd))
 BIN      := auditor
@@ -304,6 +308,9 @@ $(OUTBIN): .go/$(OUTBIN).stamp
 	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
 	    $(BUILD_IMAGE)                                          \
 	    /bin/bash -c "                                          \
+	        PRODUCT_OWNER_NAME=$(PRODUCT_OWNER_NAME)            \
+	        PRODUCT_NAME=$(PRODUCT_NAME)                        \
+	        ENFORCE_LICENSE=$(ENFORCE_LICENSE)                  \
 	        ARCH=$(ARCH)                                        \
 	        OS=$(OS)                                            \
 	        VERSION=$(VERSION)                                  \
@@ -470,12 +477,14 @@ endif
 POLICYFILE_PATH ?= ""
 RECEIVER_ADDR 	?= "nats://classic-server.nats.svc"
 CREDENTIAL_PATH ?= ""
+LICENSE_FILE    ?=
 
 .PHONY: install
 install:
 	@cd ../installer; \
 	helm install auditor charts/auditor --wait \
 		--namespace=$(KUBE_NAMESPACE) \
+		--set-file license=$(LICENSE_FILE) \
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \

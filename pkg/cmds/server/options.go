@@ -38,7 +38,8 @@ import (
 )
 
 type ExtraOptions struct {
-	PolicyFile string
+	LicenseFile string
+	PolicyFile  string
 
 	// TODO: Should include full HTTP endpoint options, eg, CA, client certs
 	// eg: https://github.com/DirectXMan12/k8s-prometheus-adapter/blob/master/cmd/adapter/adapter.go#L57-L66
@@ -64,6 +65,8 @@ func NewExtraOptions() *ExtraOptions {
 
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	clusterid.AddGoFlags(fs)
+
+	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
 
 	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
 
@@ -96,6 +99,8 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		}
 		cfg.Policy = policy
 	}
+
+	cfg.LicenseFile = s.LicenseFile
 
 	cfg.ReceiverAddress = s.ReceiverAddress
 	cfg.ReceiverCredentialFile = s.ReceiverCredentialFile
