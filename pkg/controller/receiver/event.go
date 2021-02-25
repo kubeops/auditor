@@ -17,8 +17,7 @@ limitations under the License.
 package receiver
 
 import (
-	"fmt"
-	"log"
+	"context"
 	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -26,6 +25,7 @@ import (
 	eventz "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	"k8s.io/klog"
 )
 
 // PublishEvent sends the events to receiver server
@@ -42,18 +42,26 @@ func PublishEvent(nc *nats.Conn, natsSubject string, op string, obj interface{})
 		return err
 	}
 
-	println("\n\n\n\n")
-	fmt.Println("************", len(data))
-	println("\n\n\n\n")
-
-	//data = []byte("Hi")
-
-	_, err = nc.Request(natsSubject, data, time.Second*5)
-	if err != nil {
-		return err
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*30)
+	for {
+		_, err = nc.Request(natsSubject, data, time.Second*5)
+		if err == nil {
+			cancel()
+		} else {
+			klog.Warningln(err)
+		}
+		select {
+		case <-ctx.Done():
+			if ctx.Err() == context.DeadlineExceeded {
+				klog.Warningf("failed to send event : %s", string(data))
+			} else if ctx.Err() == context.Canceled {
+				klog.Infof("Published event `%s` to channel `%s` and acknoledged", op, natsSubject)
+			}
+			break
+		default:
+			time.Sleep(time.Microsecond * 100)
+		}
 	}
-
-	log.Printf("Published event `%s` to channel `%s` and acknoledged", op, natsSubject)
 
 	return nil
 }

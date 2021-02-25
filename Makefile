@@ -474,10 +474,8 @@ else
 	IMAGE_PULL_SECRETS = --set imagePullSecrets[0].name=$(REGISTRY_SECRET)
 endif
 
-POLICYFILE_PATH ?= "$(HOME)/go/src/kmodules.xyz/auditor/hack/policy/default-policy.yaml"
-RECEIVER_ADDR 	?= "nats://classic-server.nats.svc"
-CREDENTIAL_PATH ?= ""
-LICENSE_FILE    ?=
+POLICY_FILE ?= "$(HOME)/go/src/kmodules.xyz/auditor/hack/policy/default-policy.yaml"
+LICENSE_FILE ?=
 
 .PHONY: install
 install:
@@ -488,9 +486,7 @@ install:
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \
-		--set-file watcher.policy=$(POLICYFILE_PATH) \
-		--set watcher.receiverAddr=$(RECEIVER_ADDR) \
-		--set-file watcher.receiverCredential=$(CREDENTIAL_PATH) \
+		--set-file policy=$(POLICY_FILE) \
 		$(IMAGE_PULL_SECRETS); \
 
 .PHONY: uninstall
@@ -581,13 +577,14 @@ clean:
 
 .PHONY: run
 run:
-	GO111MODULE=on go run -mod=vendor ./cmd/auditor run \
-		--v=3 \
-		--secure-port=8443 \
+	go run  -mod=vendor cmd/auditor/*.go run \
+		--v=3 --secure-port=8443 \
 		--kubeconfig=$(KUBECONFIG) \
 		--authorization-kubeconfig=$(KUBECONFIG) \
 		--authentication-kubeconfig=$(KUBECONFIG) \
-		--authentication-skip-lookup
+		--authentication-skip-lookup \
+		--license-file=$(LICENSE_FILE) \
+		--policy-file=$(POLICY_FILE)
 
 .PHONY: usage
 usage:

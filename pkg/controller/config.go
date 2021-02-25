@@ -45,10 +45,6 @@ type config struct {
 
 	Policy v1alpha1.AuditRegistration
 
-	// TODO: Should include full HTTP endpoint options
-	ReceiverAddress        string
-	ReceiverCredentialFile string
-
 	MaxNumRequeues int
 	NumThreads     int
 	ResyncPeriod   time.Duration

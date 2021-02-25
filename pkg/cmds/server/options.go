@@ -36,11 +36,6 @@ type ExtraOptions struct {
 	LicenseFile string
 	PolicyFile  string
 
-	// TODO: Should include full HTTP endpoint options, eg, CA, client certs
-	// eg: https://github.com/DirectXMan12/k8s-prometheus-adapter/blob/master/cmd/adapter/adapter.go#L57-L66
-	ReceiverAddress        string
-	ReceiverCredentialFile string
-
 	MaxNumRequeues int
 	NumThreads     int
 	QPS            float64
@@ -64,9 +59,6 @@ func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
 
 	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
-
-	fs.StringVar(&s.ReceiverAddress, "receiver-addr", s.ReceiverAddress, "Receiver endpoint address")
-	fs.StringVar(&s.ReceiverCredentialFile, "receiver-credential-file", s.ReceiverCredentialFile, "Token used to authenticate with receiver")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
@@ -96,9 +88,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	}
 
 	cfg.LicenseFile = s.LicenseFile
-
-	cfg.ReceiverAddress = s.ReceiverAddress
-	cfg.ReceiverCredentialFile = s.ReceiverCredentialFile
 
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads
