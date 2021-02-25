@@ -26,14 +26,10 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	Subject = "ClusterEvents"
-)
-
 // PublishEvent sends the events to receiver server
-func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
+func PublishEvent(client cloudevents.Client, natsSubject string, op string, obj []byte) error {
 	event := cloudevents.NewEvent()
-	setEventDefaults(&event, op)
+	setEventDefaults(&event, natsSubject, op)
 	if err := event.SetData("application/json", obj); err != nil {
 		return err
 	}
@@ -42,14 +38,14 @@ func PublishEvent(client cloudevents.Client, op string, obj []byte) error {
 		log.Printf("failed to send: %v", result.Error())
 		return result
 	}
-	log.Printf("Published event `%s` to channel `%s` and acknoledged: %v", op, Subject, cloudevents.IsACK(result))
+	log.Printf("Published event `%s` to channel `%s` and acknoledged: %v", op, natsSubject, cloudevents.IsACK(result))
 
 	return nil
 }
 
-func setEventDefaults(event *eventz.Event, op string) {
+func setEventDefaults(event *eventz.Event, natsSubject, op string) {
 	event.SetID(uuid.New().String())
-	event.SetSubject(Subject)
+	event.SetSubject(natsSubject)
 	event.SetType(op)
 	event.SetSource("kmodules.xyz/auditor")
 	event.SetTime(time.Now())

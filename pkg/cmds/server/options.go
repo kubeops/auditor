@@ -24,14 +24,9 @@ import (
 
 	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
 	"kmodules.xyz/auditor/pkg/controller"
-	"kmodules.xyz/auditor/pkg/controller/receiver"
 	"kmodules.xyz/client-go/tools/clusterid"
 
-	cnats "github.com/cloudevents/sdk-go/protocol/nats/v2"
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/nats-io/nats.go"
 	"github.com/spf13/pflag"
-	"gomodules.xyz/x/log"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/yaml"
@@ -115,23 +110,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		return err
 	}
 	if cfg.DynamicClient, err = dynamic.NewForConfig(cfg.ClientConfig); err != nil {
-		return err
-	}
-	var natsOpts = []nats.Option{nats.Name("Auditor")}
-	if len(cfg.ReceiverCredentialFile) > 0 {
-		natsOpts = append(natsOpts, nats.UserCredentials(cfg.ReceiverCredentialFile))
-	}
-	if cfg.NatsClient, err = nats.Connect(cfg.ReceiverAddress, natsOpts...); err != nil {
-		return err
-	}
-	log.Infof("Nats connection established to %s", cfg.ReceiverAddress)
-
-	sender, err := cnats.NewSenderFromConn(cfg.NatsClient, receiver.Subject)
-	if err != nil {
-		return err
-	}
-
-	if cfg.CloudEventsClient, err = cloudevents.NewClient(sender); err != nil {
 		return err
 	}
 

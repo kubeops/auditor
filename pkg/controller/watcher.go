@@ -67,7 +67,7 @@ func (c *AuditorController) initWatchers() error {
 			gvr := m.Resource
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "create"}, "$")
-			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
+			if err = receiver.PublishEvent(c.cloudEventsClient, c.natsSubject, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
@@ -103,7 +103,7 @@ func (c *AuditorController) initWatchers() error {
 			gvr := m.Resource
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, uNew.GetNamespace(), uNew.GetName(), "update"}, "$")
-			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
+			if err = receiver.PublishEvent(c.cloudEventsClient, c.natsSubject, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 
@@ -134,7 +134,7 @@ func (c *AuditorController) initWatchers() error {
 			gvr := m.Resource
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "delete"}, "$")
-			if err = receiver.PublishEvent(c.cloudEventsClient, op, data); err != nil {
+			if err = receiver.PublishEvent(c.cloudEventsClient, c.natsSubject, op, data); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},

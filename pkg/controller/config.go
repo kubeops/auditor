@@ -29,6 +29,7 @@ import (
 	"kmodules.xyz/client-go/discovery"
 	"kmodules.xyz/client-go/tools/clusterid"
 
+	cnats "github.com/cloudevents/sdk-go/protocol/nats/v2"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
 	verifier "go.bytebuilders.dev/license-verifier"
@@ -59,9 +60,6 @@ type Config struct {
 	ClientConfig  *rest.Config
 	KubeClient    kubernetes.Interface
 	DynamicClient dynamic.Interface
-
-	NatsClient        *nats.Conn
-	CloudEventsClient cloudevents.Client
 }
 
 func NewConfig(clientConfig *rest.Config) *Config {
@@ -121,6 +119,27 @@ func (c *Config) New() (*AuditorController, error) {
 		return nil, err
 	}
 
+	var natsOpts = []nats.Option{nats.Name("Auditor")}
+	if err = ioutil.WriteFile("/tmp/nats.creds", natscred.Credential, 0600); err != nil {
+		return nil, err
+	}
+
+	natsOpts = append(natsOpts, nats.UserCredentials("/tmp/nats.creds"))
+	nc, err := nats.Connect(natscred.NatsServer, natsOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	sender, err := cnats.NewSenderFromConn(nc, natscred.NatsSubject)
+	if err != nil {
+		return nil, err
+	}
+
+	cloudEventsClient, err := cloudevents.NewClient(sender)
+	if err != nil {
+		return nil, err
+	}
+
 	ctrl := &AuditorController{
 		config:                 c.config,
 		clientConfig:           c.ClientConfig,
@@ -129,10 +148,8 @@ func (c *Config) New() (*AuditorController, error) {
 		dynamicInformerFactory: dynamicinformer.NewDynamicSharedInformerFactory(c.DynamicClient, c.ResyncPeriod),
 		recorder:               eventer.NewEventRecorder(c.KubeClient, "auditor"),
 
-		natsClient:        c.NatsClient,
-		cloudEventsClient: c.CloudEventsClient,
-
-		NatsCredential: natscred,
+		cloudEventsClient: cloudEventsClient,
+		natsSubject:       natscred.NatsSubject,
 	}
 
 	if err := ctrl.initWatchers(); err != nil {
