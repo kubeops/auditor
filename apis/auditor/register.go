@@ -17,4 +17,4 @@ limitations under the License.
 package auditor
 
 // GroupName is the group name use in this package
-const GroupName = "auditor.kmodules.cloud"
+const GroupName = "auditor.appscode.com"

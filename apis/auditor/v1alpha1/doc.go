@@ -21,5 +21,5 @@ limitations under the License.
 // +k8s:openapi-gen=true
 // +k8s:defaulter-gen=TypeMeta
 
-// +groupName=auditor.kmodules.cloud
+// +groupName=auditor.appscode.com
 package v1alpha1

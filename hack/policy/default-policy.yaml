@@ -1,4 +1,4 @@
-apiVersion: auditor.kmodules.cloud/v1alpha1
+apiVersion: auditor.appscode.com/v1alpha1
 kind: AuditRegistration
 resources:
 - group: apps

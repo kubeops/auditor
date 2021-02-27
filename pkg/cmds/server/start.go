@@ -33,7 +33,7 @@ import (
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 )
 
-const defaultEtcdPathPrefix = "/registry/auditor.kmodules.cloud"
+const defaultEtcdPathPrefix = "/registry/auditor.appscode.com"
 
 type AuditorOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions

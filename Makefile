@@ -207,7 +207,7 @@ gen-crds:
 			paths="./apis/..."              \
 			output:crd:artifacts:config=crds
 
-crds_to_patch := auditor.kmodules.cloud_dashboards.yaml
+crds_to_patch := auditor.appscode.com_dashboards.yaml
 
 .PHONY: patch-crds
 patch-crds: $(addprefix patch-crd-, $(crds_to_patch))
