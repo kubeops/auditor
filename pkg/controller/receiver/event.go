@@ -43,6 +43,8 @@ func PublishEvent(nc *nats.Conn, natsSubject string, op string, obj interface{})
 	}
 
 	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*30)
+	defer cancel()
+
 	for {
 		_, err = nc.Request(natsSubject, data, time.Second*5)
 		if err == nil {
@@ -50,6 +52,7 @@ func PublishEvent(nc *nats.Conn, natsSubject string, op string, obj interface{})
 		} else {
 			klog.Warningln(err)
 		}
+
 		select {
 		case <-ctx.Done():
 			if ctx.Err() == context.DeadlineExceeded {
@@ -57,13 +60,11 @@ func PublishEvent(nc *nats.Conn, natsSubject string, op string, obj interface{})
 			} else if ctx.Err() == context.Canceled {
 				klog.Infof("Published event `%s` to channel `%s` and acknoledged", op, natsSubject)
 			}
-			break
+			return nil
 		default:
 			time.Sleep(time.Microsecond * 100)
 		}
 	}
-
-	return nil
 }
 
 func setEventDefaults(event *eventz.Event, natsSubject, op string) {

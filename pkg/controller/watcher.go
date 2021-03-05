@@ -59,6 +59,7 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorln(err)
 			}
 			gvr := m.Resource
+			u.SetManagedFields(nil)
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "create"}, "$")
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, u); err != nil {
@@ -89,6 +90,7 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorln(err)
 			}
 			gvr := m.Resource
+			uNew.SetManagedFields(nil)
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, uNew.GetNamespace(), uNew.GetName(), "update"}, "$")
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, uNew); err != nil {
@@ -114,6 +116,7 @@ func (c *AuditorController) initWatchers() error {
 				log.Errorln(err)
 			}
 			gvr := m.Resource
+			u.SetManagedFields(nil)
 
 			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "delete"}, "$")
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, u); err != nil {
