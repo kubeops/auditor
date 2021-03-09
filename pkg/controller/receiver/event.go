@@ -20,13 +20,27 @@ import (
 	"context"
 	"time"
 
+	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 	eventz "github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/klog"
 )
+
+const (
+	EventCreate = "create"
+	EventUpdate = "update"
+	EventDelete = "delete"
+)
+
+type OperatorEvent struct {
+	Resource   *unstructured.Unstructured `json:"resource"`
+	ResourceID v1alpha1.ResourceID        `json:"resourceID"`
+}
 
 // PublishEvent sends the events to receiver server
 func PublishEvent(nc *nats.Conn, natsSubject string, op string, obj interface{}) error {

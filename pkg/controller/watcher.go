@@ -22,9 +22,11 @@ import (
 
 	"kmodules.xyz/auditor/pkg/controller/receiver"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 
 	"gomodules.xyz/x/log"
 	stringz "gomodules.xyz/x/strings"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
@@ -58,11 +60,24 @@ func (c *AuditorController) initWatchers() error {
 			if err != nil {
 				log.Errorln(err)
 			}
-			gvr := m.Resource
 			u.SetManagedFields(nil)
 
-			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "create"}, "$")
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, u); err != nil {
+			opEvent := receiver.OperatorEvent{
+				Resource: u,
+				ResourceID: v1alpha1.ResourceID{
+					Group:   m.Resource.Group,
+					Version: m.Resource.Version,
+					Name:    m.Resource.Resource,
+					Kind:    m.GroupVersionKind.Kind,
+					Scope:   v1alpha1.NamespaceScoped,
+				},
+			}
+
+			if m.Scope.Name() != meta.RESTScopeNameNamespace {
+				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
+			}
+
+			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventCreate, opEvent); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
@@ -89,11 +104,24 @@ func (c *AuditorController) initWatchers() error {
 			if err != nil {
 				log.Errorln(err)
 			}
-			gvr := m.Resource
-			uNew.SetManagedFields(nil)
 
-			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, uNew.GetNamespace(), uNew.GetName(), "update"}, "$")
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, uNew); err != nil {
+			uNew.SetManagedFields(nil)
+			opEvent := receiver.OperatorEvent{
+				Resource: uNew,
+				ResourceID: v1alpha1.ResourceID{
+					Group:   m.Resource.Group,
+					Version: m.Resource.Version,
+					Name:    m.Resource.Resource,
+					Kind:    m.GroupVersionKind.Kind,
+					Scope:   v1alpha1.NamespaceScoped,
+				},
+			}
+
+			if m.Scope.Name() != meta.RESTScopeNameNamespace {
+				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
+			}
+
+			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventUpdate, opEvent); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 
@@ -115,11 +143,23 @@ func (c *AuditorController) initWatchers() error {
 			if err != nil {
 				log.Errorln(err)
 			}
-			gvr := m.Resource
 			u.SetManagedFields(nil)
+			opEvent := receiver.OperatorEvent{
+				Resource: u,
+				ResourceID: v1alpha1.ResourceID{
+					Group:   m.Resource.Group,
+					Version: m.Resource.Version,
+					Name:    m.Resource.Resource,
+					Kind:    m.GroupVersionKind.Kind,
+					Scope:   v1alpha1.NamespaceScoped,
+				},
+			}
 
-			op := strings.Join([]string{cid, gvr.Group, gvr.Version, gvr.Resource, u.GetNamespace(), u.GetName(), "delete"}, "$")
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, op, u); err != nil {
+			if m.Scope.Name() != meta.RESTScopeNameNamespace {
+				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
+			}
+
+			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventDelete, opEvent); err != nil {
 				log.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
