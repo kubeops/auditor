@@ -40,6 +40,7 @@ const (
 type OperatorEvent struct {
 	Resource   *unstructured.Unstructured `json:"resource"`
 	ResourceID v1alpha1.ResourceID        `json:"resourceID"`
+	LicenseID  string                     `json:"licenseID"`
 }
 
 // PublishEvent sends the events to receiver server

@@ -41,6 +41,7 @@ type AuditorController struct {
 
 	natsClient  *nats.Conn
 	natsSubject string
+	licenseID   string
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {

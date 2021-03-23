@@ -71,6 +71,7 @@ func (c *AuditorController) initWatchers() error {
 					Kind:    m.GroupVersionKind.Kind,
 					Scope:   v1alpha1.NamespaceScoped,
 				},
+				LicenseID: c.licenseID,
 			}
 
 			if m.Scope.Name() != meta.RESTScopeNameNamespace {
@@ -115,6 +116,7 @@ func (c *AuditorController) initWatchers() error {
 					Kind:    m.GroupVersionKind.Kind,
 					Scope:   v1alpha1.NamespaceScoped,
 				},
+				LicenseID: c.licenseID,
 			}
 
 			if m.Scope.Name() != meta.RESTScopeNameNamespace {
@@ -153,6 +155,7 @@ func (c *AuditorController) initWatchers() error {
 					Kind:    m.GroupVersionKind.Kind,
 					Scope:   v1alpha1.NamespaceScoped,
 				},
+				LicenseID: c.licenseID,
 			}
 
 			if m.Scope.Name() != meta.RESTScopeNameNamespace {

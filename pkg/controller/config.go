@@ -66,6 +66,7 @@ func NewConfig(clientConfig *rest.Config) *Config {
 
 // the api response of the register licensed user api
 type NatsCredential struct {
+	LicenseID   string `json:"licenseID"`
 	NatsSubject string `json:"natsSubject"`
 	NatsServer  string `json:"natsServer"`
 	Credential  []byte `json:"credential"`
@@ -148,6 +149,7 @@ func (c *Config) New() (*AuditorController, error) {
 
 		natsClient:  nc,
 		natsSubject: natscred.NatsSubject,
+		licenseID:   natscred.LicenseID,
 	}
 
 	if err := ctrl.initWatchers(); err != nil {
