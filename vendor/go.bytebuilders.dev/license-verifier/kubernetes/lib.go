@@ -73,8 +73,8 @@ func NewLicenseEnforcer(config *rest.Config, licenseFile string) *LicenseEnforce
 		licenseFile: licenseFile,
 		config:      config,
 		opts: &verifier.Options{
-			CACert:      []byte(info.LicenseCA),
-			ProductName: info.ProductName,
+			CACert:   []byte(info.LicenseCA),
+			Features: info.ProductName,
 		},
 	}
 }
@@ -111,7 +111,11 @@ func (le *LicenseEnforcer) podName() (string, error) {
 func (le *LicenseEnforcer) handleLicenseVerificationFailure(licenseErr error) error {
 	// Send interrupt so that all go-routines shut-down gracefully
 	//nolint:errcheck
-	defer syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	defer func() {
+		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		time.Sleep(30 * time.Second)
+		_ = syscall.Kill(syscall.Getpid(), syscall.SIGKILL)
+	}()
 
 	// Log licenseInfo verification failure
 	klog.Errorln("Failed to verify license. Reason: ", licenseErr.Error())
@@ -216,8 +220,8 @@ func VerifyLicensePeriodically(config *rest.Config, licenseFile string, stopCh <
 		licenseFile: licenseFile,
 		config:      config,
 		opts: &verifier.Options{
-			CACert:      []byte(info.LicenseCA),
-			ProductName: info.ProductName,
+			CACert:   []byte(info.LicenseCA),
+			Features: info.ProductName,
 		},
 	}
 	// Create Kubernetes client
@@ -249,18 +253,9 @@ func VerifyLicensePeriodically(config *rest.Config, licenseFile string, stopCh <
 		return false, nil
 	}
 
-	if !info.EnforceLicenseImmediately() {
-		licenseMissing := licenseFile == ""
-		if _, err := os.Stat(licenseFile); os.IsNotExist(err) {
-			licenseMissing = true
-		}
-		if licenseMissing {
-			klog.Warningf("license file is missing. You have %v to acquire a valid license", licenseCheckInterval)
-
-			return wait.PollUntil(licenseCheckInterval, fn, stopCh)
-		}
+	if _, err := os.Stat(licenseFile); os.IsNotExist(err) {
+		return errors.New("license file is missing")
 	}
-
 	return wait.PollImmediateUntil(licenseCheckInterval, fn, stopCh)
 }
 
@@ -276,8 +271,8 @@ func CheckLicenseFile(config *rest.Config, licenseFile string) error {
 		licenseFile: licenseFile,
 		config:      config,
 		opts: &verifier.Options{
-			CACert:      []byte(info.LicenseCA),
-			ProductName: info.ProductName,
+			CACert:   []byte(info.LicenseCA),
+			Features: info.ProductName,
 		},
 	}
 	// Create Kubernetes client
@@ -304,8 +299,8 @@ func CheckLicenseFile(config *rest.Config, licenseFile string) error {
 	return nil
 }
 
-// CheckLicenseEndpoint verifies whether the provided api server has a valid license is valid for products.
-func CheckLicenseEndpoint(config *rest.Config, apiServiceName string, products []string) error {
+// CheckLicenseEndpoint verifies whether the provided api server has a valid license is valid for features.
+func CheckLicenseEndpoint(config *rest.Config, apiServiceName string, features []string) error {
 	aggrClient, err := clientset.NewForConfig(config)
 	if err != nil {
 		return err
@@ -355,8 +350,8 @@ func CheckLicenseEndpoint(config *rest.Config, apiServiceName string, products [
 		return fmt.Errorf("license %s is not active, status: %s, reason: %s", license.ID, license.Status, license.Reason)
 	}
 
-	if !sets.NewString(license.Products...).HasAny(products...) {
-		return fmt.Errorf("license %s is not valid for products %q", license.ID, strings.Join(products, ","))
+	if !sets.NewString(license.Features...).HasAny(features...) {
+		return fmt.Errorf("license %s is not valid for products %q", license.ID, strings.Join(features, ","))
 	}
 	return nil
 }

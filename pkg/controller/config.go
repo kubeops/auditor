@@ -19,6 +19,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -87,10 +88,10 @@ func (c *Config) New() (*AuditorController, error) {
 	}
 
 	opts := verifier.Options{
-		ClusterUID:  clusteruid,
-		ProductName: info.ProductName,
-		CACert:      []byte(info.LicenseCA),
-		License:     licenseBytes,
+		ClusterUID: clusteruid,
+		Features:   info.ProductName,
+		CACert:     []byte(info.LicenseCA),
+		License:    licenseBytes,
 	}
 	data, err := json.Marshal(opts)
 	if err != nil {
@@ -109,6 +110,10 @@ func (c *Config) New() (*AuditorController, error) {
 	_, err = io.Copy(&buf, resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(resp.Status + ", " + buf.String())
 	}
 
 	fmt.Println("api response: ", buf.String())
