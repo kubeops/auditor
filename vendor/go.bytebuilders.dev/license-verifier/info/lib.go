@@ -27,6 +27,8 @@ var (
 
 	ProductName string // This has been renamed to Features
 	ProductUID  string
+
+	RegistrationAPI string = "https://appscode.ninja/api/v1/register"
 )
 
 func SkipLicenseVerification() bool {

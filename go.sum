@@ -670,11 +670,11 @@ github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82/go.mod h1:lgjkn3NuSvDf
 github.com/yudai/pp v2.0.1+incompatible h1:Q4//iY4pNF6yPLZIigmvcl7k/bPgrcTPIFIcmawg5bI=
 github.com/yudai/pp v2.0.1+incompatible/go.mod h1:PuxR/8QJ7cyCkFp/aUDS+JY727OFEZkTdatxwunjIkc=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
-go.bytebuilders.dev/license-verifier v0.7.1/go.mod h1:N7fJxdaBJQ9seOGFg+trJQ3eWwy/ga6YZi0wlvdDQi0=
-go.bytebuilders.dev/license-verifier v0.7.2-0.20210324112209-04e88f23757a h1:nbYoZcIr1Wdk/UV9LNkBCDsWLm966qaPMkGsykdJUi8=
-go.bytebuilders.dev/license-verifier v0.7.2-0.20210324112209-04e88f23757a/go.mod h1:N7fJxdaBJQ9seOGFg+trJQ3eWwy/ga6YZi0wlvdDQi0=
-go.bytebuilders.dev/license-verifier/kubernetes v0.7.2-0.20210324112209-04e88f23757a h1:2ZO1eZsiZ5RxS7lfnoSi/HM7HVT7sE3tv4WdlWcqrmI=
-go.bytebuilders.dev/license-verifier/kubernetes v0.7.2-0.20210324112209-04e88f23757a/go.mod h1:92LIvidYIGntnkUJJKjRH3s6qdgyiHRZFeBd14Efl3c=
+go.bytebuilders.dev/license-verifier v0.8.0/go.mod h1:N7fJxdaBJQ9seOGFg+trJQ3eWwy/ga6YZi0wlvdDQi0=
+go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178 h1:TBWpNseg8lvXc35qHGop5TFcLtb8xBqFNYHFuCa6Q34=
+go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178/go.mod h1:N7fJxdaBJQ9seOGFg+trJQ3eWwy/ga6YZi0wlvdDQi0=
+go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178 h1:ionqm2QOhdg6j3QLiR6zjFnusmPHt06Ug+BjIvnaUY0=
+go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178/go.mod h1:xyLTXiI5SEefYKQSNq/ozFpJChwb2Xp+8x4SMJ9180Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/bbolt v1.3.3 h1:MUGmc65QhB3pIlaQ5bB4LwqSj6GIonVJXpZiaKNyaKk=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

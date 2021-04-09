@@ -30,8 +30,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stripe/stripe-go/v72 v72.34.0
 	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
-	go.bytebuilders.dev/license-verifier v0.7.2-0.20210324112209-04e88f23757a
-	go.bytebuilders.dev/license-verifier/kubernetes v0.7.2-0.20210324112209-04e88f23757a
+	go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178
+	go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178
 	go.opencensus.io v0.22.5 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect

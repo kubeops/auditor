@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -65,7 +64,7 @@ func NewConfig(clientConfig *rest.Config) *Config {
 	}
 }
 
-// the api response of the register licensed user api
+// NatsCredential represents the api response of the register licensed user api
 type NatsCredential struct {
 	LicenseID   string `json:"licenseID"`
 	NatsSubject string `json:"natsSubject"`
@@ -98,9 +97,7 @@ func (c *Config) New() (*AuditorController, error) {
 		return nil, err
 	}
 
-	// TODO: Make URL dynamic
-	url := "https://appscode.ninja/api/v1/register"
-	resp, err := http.Post(url, "application/json", bytes.NewReader(data))
+	resp, err := http.Post(info.RegistrationAPI, "application/json", bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
@@ -116,29 +113,12 @@ func (c *Config) New() (*AuditorController, error) {
 		return nil, errors.New(resp.Status + ", " + buf.String())
 	}
 
-	fmt.Println("api response: ", buf.String())
 	var natscred NatsCredential
 	err = json.Unmarshal(buf.Bytes(), &natscred)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("server:", natscred.NatsServer)
-	fmt.Println("subject:", natscred.NatsSubject)
-
-	//var natsOpts = []nats.Option{nats.Name("Auditor")}
-	//if err = ioutil.WriteFile("/tmp/nats.creds", natscred.Credential, 0600); err != nil {
-	//	return nil, err
-	//}
-	//
-	//creds, err := ioutil.ReadFile("/tmp/nats.creds")
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//fmt.Println("Credential from file:\n", string(creds))
-	//
-	//natsOpts = append(natsOpts, nats.UserCredentials("/tmp/nats.creds"))
 	nc, err := NewConnection(natscred)
 	if err != nil {
 		return nil, err
@@ -173,19 +153,15 @@ func NewConnection(natscred NatsCredential) (nc *nats.Conn, err error) {
 		nats.ErrorHandler(errorHandler),
 		nats.ReconnectHandler(reconnectHandler),
 		nats.DisconnectErrHandler(disconnectHandler),
+		//nats.UseOldRequestStyle(),
 	}
 
-	if err = ioutil.WriteFile("/tmp/nats.creds", natscred.Credential, 0600); err != nil {
+	credFile := "/tmp/nats.creds"
+	if err = ioutil.WriteFile(credFile, natscred.Credential, 0600); err != nil {
 		return nil, err
 	}
 
-	creds, err := ioutil.ReadFile("/tmp/nats.creds")
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("credential:\n", string(creds))
-
-	opts = append(opts, nats.UserCredentials("/tmp/nats.creds"))
+	opts = append(opts, nats.UserCredentials(credFile))
 
 	//if os.Getenv("NATS_CERTIFICATE") != "" && os.Getenv("NATS_KEY") != "" {
 	//	opts = append(opts, nats.ClientCert(os.Getenv("NATS_CERTIFICATE"), os.Getenv("NATS_KEY")))

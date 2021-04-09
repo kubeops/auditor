@@ -1,14 +1,14 @@
 apiVersion: auditor.appscode.com/v1alpha1
 kind: AuditRegistration
 resources:
-- group: apps
-  resources:
-  - deployments
-- group: ""
-  resources:
-  - pods
-  - namespaces
-  - secrets
+#- group: apps
+#  resources:
+#  - deployments
+#- group: ""
+#  resources:
+#  - pods
+#  - namespaces
+#  - secrets
 - group: appcatalog.appscode.com
   resources:
   - appbindings
@@ -21,14 +21,6 @@ resources:
   - postgresversions
   - memcachedversions
   - elasticsearchversions
-- group: cloud.bytebuilders.dev
-  resources:
-  - credentials
-  - machinetypes
-  - cloudproviders
-  - clusterinfos
-  - clusteruserauths
-  - clusterauthinfotemplates
 - group: kubedb.com
   resources:
   - etcds
@@ -40,10 +32,6 @@ resources:
   - postgreses
   - elasticsearches
   - dormantdatabases
-- group: kubepack.com
-  resources:
-  - plans
-  - products
 - group: monitoring.appscode.com
   resources:
   - incidents

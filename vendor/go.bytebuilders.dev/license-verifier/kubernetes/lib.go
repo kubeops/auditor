@@ -110,9 +110,15 @@ func (le *LicenseEnforcer) podName() (string, error) {
 
 func (le *LicenseEnforcer) handleLicenseVerificationFailure(licenseErr error) error {
 	// Send interrupt so that all go-routines shut-down gracefully
+	// https://pracucci.com/graceful-shutdown-of-kubernetes-pods.html
+	// https://linuxhandbook.com/sigterm-vs-sigkill/
+	// https://pracucci.com/graceful-shutdown-of-kubernetes-pods.html
 	//nolint:errcheck
 	defer func() {
-		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		// Need to send signal twice because
+		// we catch the first INT/TERM signal
+		// ref: https://github.com/kubernetes/apiserver/blob/8d97c871d91c75b81b8b4c438f4dd1eaa7f35052/pkg/server/signal.go#L47-L51
+		_ = syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
 		time.Sleep(30 * time.Second)
 		_ = syscall.Kill(syscall.Getpid(), syscall.SIGKILL)
 	}()
