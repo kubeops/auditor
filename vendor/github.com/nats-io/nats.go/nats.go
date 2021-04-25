@@ -75,6 +75,12 @@ const (
 
 	// AUTHENTICATION_EXPIRED_ERR is for when nats server user authorization has expired.
 	AUTHENTICATION_EXPIRED_ERR = "user authentication expired"
+
+	// AUTHENTICATION_REVOKED_ERR is for when user authorization has been revoked.
+	AUTHENTICATION_REVOKED_ERR = "user authentication revoked"
+
+	// ACCOUNT_AUTHENTICATION_EXPIRED_ERR is for when nats server account authorization has expired.
+	ACCOUNT_AUTHENTICATION_EXPIRED_ERR = "account authentication expired"
 )
 
 // Errors
@@ -94,6 +100,8 @@ var (
 	ErrBadTimeout                   = errors.New("nats: timeout invalid")
 	ErrAuthorization                = errors.New("nats: authorization violation")
 	ErrAuthExpired                  = errors.New("nats: authentication expired")
+	ErrAuthRevoked                  = errors.New("nats: authentication revoked")
+	ErrAccountAuthExpired           = errors.New("nats: account authentication expired")
 	ErrNoServers                    = errors.New("nats: no servers available for connection")
 	ErrJsonParse                    = errors.New("nats: connect message, json parse error")
 	ErrChanArg                      = errors.New("nats: argument needs to be a channel type")
@@ -125,7 +133,6 @@ var (
 	ErrBadHeaderMsg                 = errors.New("nats: message could not decode headers")
 	ErrNoResponders                 = errors.New("nats: no responders available for request")
 	ErrNoContextOrTimeout           = errors.New("nats: no context or timeout given")
-	ErrDirectModeRequired           = errors.New("nats: direct access requires direct pull or push")
 	ErrPullModeNotAllowed           = errors.New("nats: pull based not supported")
 	ErrJetStreamNotEnabled          = errors.New("nats: jetstream not enabled")
 	ErrJetStreamBadPre              = errors.New("nats: jetstream api prefix not valid")
@@ -484,6 +491,9 @@ type Conn struct {
 	respMux   *Subscription        // A single response subscription
 	respMap   map[string]chan *Msg // Request map for the response msg channels
 	respRand  *rand.Rand           // Used for generating suffix
+
+	// JetStream Contexts last account check.
+	jsLastCheck time.Time
 }
 
 // Subscription represents interest in a given subject.
@@ -532,6 +542,23 @@ type Subscription struct {
 
 // Msg represents a message delivered by NATS. This structure is used
 // by Subscribers and PublishMsg().
+//
+// Types of Acknowledgements
+//
+// In case using JetStream, there are multiple ways to ack a Msg:
+//
+//   // Acknowledgement that a message has been processed.
+//   msg.Ack()
+//
+//   // Negatively acknowledges a message.
+//   msg.Nak()
+//
+//   // Terminate a message so that it is not redelivered further.
+//   msg.Term()
+//
+//   // Signal the server that the message is being worked on and reset redelivery timer.
+//   msg.InProgress()
+//
 type Msg struct {
 	Subject string
 	Reply   string
@@ -2441,6 +2468,8 @@ func (nc *Conn) processMsg(data []byte) {
 	// Check if we have headers encoded here.
 	var h http.Header
 	var err error
+	var ctrl bool
+	var hasFC bool
 
 	if nc.ps.ma.hdr > 0 {
 		hbuf := msgPayload[:nc.ps.ma.hdr]
@@ -2461,6 +2490,13 @@ func (nc *Conn) processMsg(data []byte) {
 	m := &Msg{Header: h, Data: msgPayload, Subject: subj, Reply: reply, Sub: sub}
 
 	sub.mu.Lock()
+
+	// Skip flow control messages in case of using a JetStream context.
+	jsi := sub.jsi
+	if jsi != nil {
+		ctrl = isControlMessage(m)
+		hasFC = jsi.fc
+	}
 
 	// Check if closed.
 	if sub.closed {
@@ -2488,23 +2524,28 @@ func (nc *Conn) processMsg(data []byte) {
 
 	// We have two modes of delivery. One is the channel, used by channel
 	// subscribers and syncSubscribers, the other is a linked list for async.
-	if sub.mch != nil {
-		select {
-		case sub.mch <- m:
-		default:
-			goto slowConsumer
-		}
-	} else {
-		// Push onto the async pList
-		if sub.pHead == nil {
-			sub.pHead = m
-			sub.pTail = m
-			if sub.pCond != nil {
-				sub.pCond.Signal()
+	if !ctrl {
+		if sub.mch != nil {
+			select {
+			case sub.mch <- m:
+			default:
+				goto slowConsumer
 			}
 		} else {
-			sub.pTail.next = m
-			sub.pTail = m
+			// Push onto the async pList
+			if sub.pHead == nil {
+				sub.pHead = m
+				sub.pTail = m
+				if sub.pCond != nil {
+					sub.pCond.Signal()
+				}
+			} else {
+				sub.pTail.next = m
+				sub.pTail = m
+			}
+		}
+		if hasFC {
+			jsi.trackSequences(m)
 		}
 	}
 
@@ -2512,6 +2553,13 @@ func (nc *Conn) processMsg(data []byte) {
 	sub.sc = false
 
 	sub.mu.Unlock()
+
+	// Handle flow control and heartbeat messages automatically
+	// for JetStream Push consumers.
+	if ctrl {
+		nc.processControlFlow(m, sub, jsi)
+	}
+
 	return
 
 slowConsumer:
@@ -2757,6 +2805,12 @@ func checkAuthError(e string) error {
 	if strings.HasPrefix(e, AUTHENTICATION_EXPIRED_ERR) {
 		return ErrAuthExpired
 	}
+	if strings.HasPrefix(e, AUTHENTICATION_REVOKED_ERR) {
+		return ErrAuthRevoked
+	}
+	if strings.HasPrefix(e, ACCOUNT_AUTHENTICATION_EXPIRED_ERR) {
+		return ErrAccountAuthExpired
+	}
 	return nil
 }
 
@@ -2817,13 +2871,17 @@ func NewMsg(subject string) *Msg {
 }
 
 const (
-	hdrLine      = "NATS/1.0\r\n"
-	crlf         = "\r\n"
-	hdrPreEnd    = len(hdrLine) - len(crlf)
-	statusHdr    = "Status"
-	descrHdr     = "Description"
-	noResponders = "503"
-	statusLen    = 3 // e.g. 20x, 40x, 50x
+	hdrLine            = "NATS/1.0\r\n"
+	crlf               = "\r\n"
+	hdrPreEnd          = len(hdrLine) - len(crlf)
+	statusHdr          = "Status"
+	descrHdr           = "Description"
+	lastConsumerSeqHdr = "Nats-Last-Consumer"
+	lastStreamSeqHdr   = "Nats-Last-Stream"
+	noResponders       = "503"
+	noMessages         = "404"
+	controlMsg         = "100"
+	statusLen          = 3 // e.g. 20x, 40x, 50x
 )
 
 // decodeHeadersMsg will decode and headers.
@@ -2833,10 +2891,12 @@ func decodeHeadersMsg(data []byte) (http.Header, error) {
 	if err != nil || len(l) < hdrPreEnd || l[:hdrPreEnd] != hdrLine[:hdrPreEnd] {
 		return nil, ErrBadHeaderMsg
 	}
-	mh, err := tp.ReadMIMEHeader()
+
+	mh, err := readMIMEHeader(tp)
 	if err != nil {
-		return nil, ErrBadHeaderMsg
+		return nil, err
 	}
+
 	// Check if we have an inlined status.
 	if len(l) > hdrPreEnd {
 		var description string
@@ -2851,6 +2911,53 @@ func decodeHeadersMsg(data []byte) (http.Header, error) {
 		}
 	}
 	return http.Header(mh), nil
+}
+
+// readMIMEHeader returns a MIMEHeader that preserves the
+// original case of the MIME header, based on the implementation
+// of textproto.ReadMIMEHeader.
+//
+// https://golang.org/pkg/net/textproto/#Reader.ReadMIMEHeader
+func readMIMEHeader(tp *textproto.Reader) (textproto.MIMEHeader, error) {
+	var (
+		m    = make(textproto.MIMEHeader)
+		strs []string
+	)
+	for {
+		kv, err := tp.ReadLine()
+		if len(kv) == 0 {
+			return m, err
+		}
+
+		// Process key fetching original case.
+		i := bytes.IndexByte([]byte(kv), ':')
+		if i < 0 {
+			return nil, ErrBadHeaderMsg
+		}
+		key := kv[:i]
+		if key == "" {
+			// Skip empty keys.
+			continue
+		}
+		i++
+		for i < len(kv) && (kv[i] == ' ' || kv[i] == '\t') {
+			i++
+		}
+		value := string(kv[i:])
+		vv := m[key]
+		if vv == nil && len(strs) > 0 {
+			// Single value header.
+			vv, strs = strs[:1:1], strs[1:]
+			vv[0] = value
+			m[key] = vv
+		} else {
+			// Multi value header.
+			m[key] = append(vv, value)
+		}
+		if err != nil {
+			return m, err
+		}
+	}
 }
 
 // PublishMsg publishes the Msg structure, which includes the
@@ -3284,8 +3391,7 @@ func (nc *Conn) SubscribeSync(subj string) (*Subscription, error) {
 		return nil, ErrInvalidConnection
 	}
 	mch := make(chan *Msg, nc.Opts.SubChanLen)
-	s, e := nc.subscribe(subj, _EMPTY_, nil, mch, true, nil)
-	return s, e
+	return nc.subscribe(subj, _EMPTY_, nil, mch, true, nil)
 }
 
 // QueueSubscribe creates an asynchronous queue subscriber on the given subject.
@@ -3302,8 +3408,7 @@ func (nc *Conn) QueueSubscribe(subj, queue string, cb MsgHandler) (*Subscription
 // given message synchronously using Subscription.NextMsg().
 func (nc *Conn) QueueSubscribeSync(subj, queue string) (*Subscription, error) {
 	mch := make(chan *Msg, nc.Opts.SubChanLen)
-	s, e := nc.subscribe(subj, queue, nil, mch, true, nil)
-	return s, e
+	return nc.subscribe(subj, queue, nil, mch, true, nil)
 }
 
 // QueueSubscribeSyncWithChan will express interest in the given subject.
@@ -3447,6 +3552,7 @@ const (
 	SyncSubscription
 	ChanSubscription
 	NilSubscription
+	PullSubscription
 )
 
 // Type returns the type of Subscription.
@@ -3565,7 +3671,8 @@ func (s *Subscription) AutoUnsubscribe(max int) error {
 // unsubscribe performs the low level unsubscribe to the server.
 // Use Subscription.Unsubscribe()
 func (nc *Conn) unsubscribe(sub *Subscription, max int, drainMode bool) error {
-	// Check whether it is a JetStream sub and should clean up consumers.
+	// For JetStream consumers, need to clean up ephemeral consumers
+	// or delete durable ones if called with Unsubscribe.
 	sub.mu.Lock()
 	jsi := sub.jsi
 	sub.mu.Unlock()
@@ -3611,6 +3718,55 @@ func (nc *Conn) unsubscribe(sub *Subscription, max int, drainMode bool) error {
 		fmt.Fprintf(nc.bw, unsubProto, s.sid, maxStr)
 	}
 	return nil
+}
+
+// ErrConsumerSequenceMismatch represents an error from a consumer
+// that received a Heartbeat including sequence different to the
+// one expected from the view of the client.
+type ErrConsumerSequenceMismatch struct {
+	// StreamResumeSequence is the stream sequence from where the consumer
+	// should resume consuming from the stream.
+	StreamResumeSequence uint64
+
+	// ConsumerSequence is the sequence of the consumer that is behind.
+	ConsumerSequence int64
+
+	// LastConsumerSequence is the sequence of the consumer when the heartbeat
+	// was received.
+	LastConsumerSequence int64
+}
+
+func (ecs *ErrConsumerSequenceMismatch) Error() string {
+	return fmt.Sprintf("nats: sequence mismatch for consumer at sequence %d (%d sequences behind), should restart consumer from stream sequence %d",
+		ecs.ConsumerSequence,
+		ecs.LastConsumerSequence-ecs.ConsumerSequence,
+		ecs.StreamResumeSequence,
+	)
+}
+
+// handleConsumerSequenceMismatch will send an async error that can be used to restart a push based consumer.
+func (nc *Conn) handleConsumerSequenceMismatch(sub *Subscription, err error) {
+	nc.mu.Lock()
+	errCB := nc.Opts.AsyncErrorCB
+	if errCB != nil {
+		nc.ach.push(func() { errCB(nc, sub, err) })
+	}
+	nc.mu.Unlock()
+}
+
+func isControlMessage(msg *Msg) bool {
+	return len(msg.Data) == 0 && msg.Header.Get(statusHdr) == controlMsg
+}
+
+func (jsi *jsSub) trackSequences(msg *Msg) {
+	var ctrl *controlMetadata
+	if cmeta := jsi.cmeta.Load(); cmeta == nil {
+		ctrl = &controlMetadata{}
+	} else {
+		ctrl = cmeta.(*controlMetadata)
+	}
+	ctrl.meta = msg.Reply
+	jsi.cmeta.Store(ctrl)
 }
 
 // NextMsg will return the next message available to a synchronous subscriber
@@ -3715,7 +3871,6 @@ func (s *Subscription) processNextMsgDelivered(msg *Msg) error {
 	s.mu.Lock()
 	nc := s.conn
 	max := s.max
-	jsi := s.jsi
 
 	// Update some stats.
 	s.delivered++
@@ -3736,12 +3891,6 @@ func (s *Subscription) processNextMsgDelivered(msg *Msg) error {
 			nc.removeSub(s)
 			nc.mu.Unlock()
 		}
-	}
-
-	// In case this is a JetStream message and in pull mode
-	// then check whether it is an JS API error.
-	if jsi != nil && jsi.pull > 0 && len(msg.Data) == 0 && msg.Header.Get(statusHdr) == noResponders {
-		return ErrNoResponders
 	}
 
 	return nil

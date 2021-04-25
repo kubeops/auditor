@@ -3,27 +3,19 @@ module kmodules.xyz/auditor
 go 1.15
 
 require (
-	github.com/cloudevents/sdk-go/protocol/nats/v2 v2.3.1
-	github.com/cloudevents/sdk-go/v2 v2.3.1
+	github.com/cloudevents/sdk-go/protocol/nats/v2 v2.4.1
+	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
-	github.com/googleapis/gnostic v0.4.0 // indirect
-	github.com/gophercloud/gophercloud v0.11.0 // indirect
-	github.com/gregjones/httpcache v0.0.0-20181110185634-c63ab54fda8f // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.14.6 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
-	github.com/imdario/mergo v0.3.8 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/mitchellh/mapstructure v1.4.0 // indirect
-	github.com/nats-io/jsm.go v0.0.21-0.20210224150159-343b27c03df7
-	github.com/nats-io/jwt v1.2.2 // indirect
-	github.com/nats-io/nats-server/v2 v2.1.8-0.20210225042523-cc038a6d950c // indirect
-	github.com/nats-io/nats.go v1.10.1-0.20210224230559-c50dffa88d76
+	github.com/klauspost/compress v1.12.1 // indirect
+	github.com/nats-io/nats-server/v2 v2.2.2 // indirect
+	github.com/nats-io/nats.go v1.10.1-0.20210423182523-6cee9f05a45d
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	github.com/spf13/cobra v1.1.1
@@ -32,14 +24,6 @@ require (
 	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
 	go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178
 	go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178
-	go.opencensus.io v0.22.5 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.16.0 // indirect
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
-	golang.org/x/lint v0.0.0-20201208152925-83fdc39ff7b5 // indirect
-	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
-	golang.org/x/tools v0.0.0-20201208233053-a543418bbed2 // indirect
-	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209 // indirect
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
 	gomodules.xyz/x v0.0.0-20201105065653-91c568df6331
 	k8s.io/api v0.18.9
@@ -49,8 +33,8 @@ require (
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 	k8s.io/kubernetes v1.18.9
-	kmodules.xyz/client-go v0.0.0-20210218100652-8f345ddfe801
-	kmodules.xyz/resource-metadata v0.4.13-0.20210224134454-fafdd5b120a0
+	kmodules.xyz/client-go v0.0.0-20210425191612-0c5b92597c19
+	kmodules.xyz/resource-metadata v0.4.18-0.20210425222526-3e0183aa7fc8
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 	sigs.k8s.io/yaml v1.2.0
 )
@@ -108,7 +92,7 @@ replace github.com/go-openapi/strfmt => github.com/go-openapi/strfmt v0.19.3
 
 replace github.com/go-openapi/swag => github.com/go-openapi/swag v0.19.5
 
-replace github.com/go-openapi/validate => github.com/go-openapi/validate v0.19.5
+replace github.com/go-openapi/validate => github.com/gomodules/validate v0.19.5-1.16
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.1
 
