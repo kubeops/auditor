@@ -20,9 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"kmodules.xyz/auditor/pkg/controller/receiver"
-	"kmodules.xyz/client-go/tools/clusterid"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	"kubeops.dev/auditor/pkg/controller/receiver"
 
 	"gomodules.xyz/x/log"
 	stringz "gomodules.xyz/x/strings"
@@ -34,6 +32,8 @@ import (
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog"
+	"kmodules.xyz/client-go/tools/clusterid"
+	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 )
 
 func (c *AuditorController) initWatchers() error {

@@ -20,15 +20,15 @@ import (
 	"testing"
 	"time"
 
-	"kmodules.xyz/auditor/pkg/controller"
-	"kmodules.xyz/auditor/test/e2e/framework"
-	"kmodules.xyz/client-go/logs"
-	"kmodules.xyz/client-go/tools/clientcmd"
+	"kubeops.dev/auditor/pkg/controller"
+	"kubeops.dev/auditor/test/e2e/framework"
 
 	. "github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	. "github.com/onsi/gomega"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"kmodules.xyz/client-go/logs"
+	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
 const (

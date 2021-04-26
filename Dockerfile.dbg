@@ -14,7 +14,7 @@
 
 FROM {ARG_FROM}
 
-LABEL org.opencontainers.image.source https://github.com/kmodules/auditor
+LABEL org.opencontainers.image.source https://github.com/kubeops-tools/auditor
 
 ADD bin/{ARG_OS}_{ARG_ARCH}/{ARG_BIN} /{ARG_BIN}
 

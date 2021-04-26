@@ -26,7 +26,7 @@ import (
 	"strings"
 	"text/template"
 
-	"kmodules.xyz/auditor/pkg/cmds"
+	"kubeops.dev/auditor/pkg/cmds"
 
 	"github.com/spf13/cobra/doc"
 	"gomodules.xyz/runtime"
@@ -74,7 +74,7 @@ aliases:
 // ref: https://github.com/spf13/cobra/blob/master/doc/md_docs.md
 func main() {
 	rootCmd := cmds.NewRootCmd()
-	dir := runtime.GOPath() + "/src/kmodules.xyz/auditor/docs/reference/operator"
+	dir := runtime.GOPath() + "/src/kubeops.dev/auditor/docs/reference/operator"
 	fmt.Printf("Generating cli markdown tree in: %v\n", dir)
 	err := os.RemoveAll(dir)
 	if err != nil {

@@ -26,10 +26,8 @@ import (
 	"net/http"
 	"time"
 
-	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
-	"kmodules.xyz/auditor/pkg/eventer"
-	"kmodules.xyz/client-go/discovery"
-	"kmodules.xyz/client-go/tools/clusterid"
+	"kubeops.dev/auditor/apis/auditor/v1alpha1"
+	"kubeops.dev/auditor/pkg/eventer"
 
 	"github.com/nats-io/nats.go"
 	verifier "go.bytebuilders.dev/license-verifier"
@@ -38,6 +36,8 @@ import (
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"kmodules.xyz/client-go/discovery"
+	"kmodules.xyz/client-go/tools/clusterid"
 )
 
 type config struct {

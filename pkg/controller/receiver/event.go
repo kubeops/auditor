@@ -20,8 +20,6 @@ import (
 	"context"
 	"time"
 
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
-
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/binding/format"
 	eventz "github.com/cloudevents/sdk-go/v2/event"
@@ -29,6 +27,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/klog"
+	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 )
 
 const (
@@ -86,6 +85,6 @@ func setEventDefaults(event *eventz.Event, natsSubject, op string) {
 	event.SetID(uuid.New().String())
 	event.SetSubject(natsSubject)
 	event.SetType(op)
-	event.SetSource("kmodules.xyz/auditor")
+	event.SetSource("kubeops.dev/auditor")
 	event.SetTime(time.Now())
 }

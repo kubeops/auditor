@@ -17,7 +17,7 @@ limitations under the License.
 package install
 
 import (
-	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
+	"kubeops.dev/auditor/apis/auditor/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"

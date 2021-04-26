@@ -19,7 +19,7 @@ package e2e_test
 import (
 	"fmt"
 
-	"kmodules.xyz/auditor/test/e2e/framework"
+	"kubeops.dev/auditor/test/e2e/framework"
 
 	. "github.com/onsi/ginkgo"
 )

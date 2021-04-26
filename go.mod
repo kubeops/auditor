@@ -1,6 +1,6 @@
-module kmodules.xyz/auditor
+module kubeops.dev/auditor
 
-go 1.15
+go 1.16
 
 require (
 	github.com/cloudevents/sdk-go/protocol/nats/v2 v2.4.1

@@ -15,10 +15,10 @@
 SHELL=/bin/bash -o pipefail
 
 PRODUCT_OWNER_NAME := appscode
-PRODUCT_NAME       := kubedb-community
+PRODUCT_NAME       := auditor
 ENFORCE_LICENSE    ?=
 
-GO_PKG   := kmodules.xyz
+GO_PKG   := kubeops.dev
 REPO     := $(notdir $(shell pwd))
 BIN      := auditor
 COMPRESS ?= no
@@ -242,7 +242,7 @@ gen-crd-protos-%:
 			--proto-import=$(DOCKER_REPO_ROOT)/vendor    \
 			--proto-import=$(DOCKER_REPO_ROOT)/third_party/protobuf \
 			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
-			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kmodules.xyz/custom-resources/apis/appcatalog/v1alpha1,-kmodules.xyz/monitoring-agent-api/api/v1,-kmodules.xyz/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kmodules.xyz/auditor/apis/$(subst _,/,$*)
+			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kubeops.dev/custom-resources/apis/appcatalog/v1alpha1,-kubeops.dev/monitoring-agent-api/api/v1,-kubeops.dev/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kubeops.dev/auditor/apis/$(subst _,/,$*)
 
 .PHONY: gen-bindata
 gen-bindata:
@@ -474,7 +474,7 @@ else
 	IMAGE_PULL_SECRETS = --set imagePullSecrets[0].name=$(REGISTRY_SECRET)
 endif
 
-POLICY_FILE ?= "$(HOME)/go/src/kmodules.xyz/auditor/hack/policy/default-policy.yaml"
+POLICY_FILE ?= "$(HOME)/go/src/kubeops.dev/auditor/hack/policy/default-policy.yaml"
 LICENSE_FILE ?=
 
 .PHONY: install

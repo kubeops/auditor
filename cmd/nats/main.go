@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"kmodules.xyz/auditor/pkg/controller/receiver"
+	"kubeops.dev/auditor/pkg/controller/receiver"
 
 	"github.com/nats-io/nats.go"
 )

@@ -8,7 +8,7 @@ If you have a question about Auditor or having problem using it, you can contact
 
 ## Bugs/Feature request
 
-If you have found a bug with Auditor or want to request for new features, please [file an issue](https://github.com/kmodules/auditor/issues/new).
+If you have found a bug with Auditor or want to request for new features, please [file an issue](https://github.com/kubeops-tools/auditor/issues/new).
 
 ## Spread the word
 

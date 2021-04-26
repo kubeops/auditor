@@ -19,13 +19,13 @@ package main
 import (
 	"os"
 
-	"kmodules.xyz/auditor/pkg/cmds"
-	"kmodules.xyz/client-go/logs"
+	"kubeops.dev/auditor/pkg/cmds"
 
 	"go.bytebuilders.dev/license-verifier/info"
 	_ "go.bytebuilders.dev/license-verifier/info"
 	_ "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"kmodules.xyz/client-go/logs"
 )
 
 func main() {
