@@ -20,7 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"kubeshield.dev/auditor/pkg/cmds/server"
+	"kmodules.xyz/auditor/pkg/cmds/server"
 
 	"k8s.io/client-go/util/homedir"
 )
@@ -48,13 +48,3 @@ var (
 		apiKey: "admin:admin",
 	}
 )
-
-/*
-func init() {
-	options.AddGoFlags(flag.CommandLine)
-	flag.StringVar(&options.kubeConfig, "kubeconfig", options.kubeConfig, "Path to kubeconfig file with authorization information (the master location is set by the master flag).")
-	flag.StringVar(&options.kubeContext, "kube-context", "", "Name of kube context")
-	flag.StringVar(&options.apiURL, "apiurl", options.apiURL, "API URL for grafana server")
-	flag.StringVar(&options.apiKey, "apikey", options.apiKey, "User credential to connect ot grafana server")
-	flag.Parse()
-}*/

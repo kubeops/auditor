@@ -21,18 +21,19 @@ import (
 	"io"
 	"net"
 
-	"kubeshield.dev/auditor/pkg/controller"
-	"kubeshield.dev/auditor/pkg/server"
+	"kmodules.xyz/auditor/pkg/controller"
+	"kmodules.xyz/auditor/pkg/server"
+	"kmodules.xyz/client-go/meta"
+	"kmodules.xyz/client-go/tools/clientcmd"
 
 	"github.com/spf13/pflag"
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
-	"kmodules.xyz/client-go/meta"
-	"kmodules.xyz/client-go/tools/clientcmd"
 )
 
-const defaultEtcdPathPrefix = "/registry/auditor.kubeshield.cloud"
+const defaultEtcdPathPrefix = "/registry/auditor.appscode.com"
 
 type AuditorOptions struct {
 	RecommendedOptions *genericoptions.RecommendedOptions
@@ -73,7 +74,7 @@ func (o *AuditorOptions) Complete() error {
 	return nil
 }
 
-func (o AuditorOptions) Config() (*server.GrafanaOperatorConfig, error) {
+func (o AuditorOptions) Config() (*server.AuditorConfig, error) {
 	// TODO have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", nil, []net.IP{net.ParseIP("127.0.0.1")}); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
@@ -92,7 +93,7 @@ func (o AuditorOptions) Config() (*server.GrafanaOperatorConfig, error) {
 		return nil, err
 	}
 
-	config := &server.GrafanaOperatorConfig{
+	config := &server.AuditorConfig{
 		GenericConfig: serverConfig,
 		ExtraConfig:   extraConfig,
 	}
@@ -109,6 +110,10 @@ func (o AuditorOptions) Run(stopCh <-chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Start periodic license verification
+	//nolint:errcheck
+	go license.VerifyLicensePeriodically(config.ExtraConfig.ClientConfig, o.ExtraOptions.LicenseFile, stopCh)
 
 	return s.Run(stopCh)
 }

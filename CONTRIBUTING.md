@@ -8,8 +8,8 @@ If you have a question about Auditor or having problem using it, you can contact
 
 ## Bugs/Feature request
 
-If you have found a bug with Auditor or want to request for new features, please [file an issue](https://github.com/kubeshield/auditor/issues/new).
+If you have found a bug with Auditor or want to request for new features, please [file an issue](https://github.com/kmodules/auditor/issues/new).
 
 ## Spread the word
 
-If you have written blog post or tutorial on Auditor, please share it with us on [Twitter](https://twitter.com/Kubeshield) or [Slack](https://slack.appscode.com).
+If you have written blog post or tutorial on Auditor, please share it with us on [Twitter](https://twitter.com/kmodules) or [Slack](https://slack.appscode.com).

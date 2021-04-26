@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/golang/glog"
+	"github.com/nats-io/nats.go"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
@@ -37,6 +38,10 @@ type AuditorController struct {
 	recorder      record.EventRecorder
 
 	dynamicInformerFactory dynamicinformer.DynamicSharedInformerFactory
+
+	natsClient  *nats.Conn
+	natsSubject string
+	licenseID   string
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {

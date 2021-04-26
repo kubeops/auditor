@@ -20,8 +20,11 @@ import (
 	"fmt"
 	"strings"
 
-	"kubeshield.dev/auditor/pkg/controller"
+	"kmodules.xyz/auditor/pkg/controller"
+	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
+	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
 
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	admission "k8s.io/api/admission/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,8 +34,6 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	hooks "kmodules.xyz/webhook-runtime/admission/v1beta1"
-	admissionreview "kmodules.xyz/webhook-runtime/registry/admissionreview/v1beta1"
 )
 
 var (
@@ -58,18 +59,18 @@ func init() {
 	)
 }
 
-type GrafanaOperatorConfig struct {
+type AuditorConfig struct {
 	GenericConfig *genericapiserver.RecommendedConfig
 	ExtraConfig   *controller.Config
 }
 
-// GrafanaOperator contains state for a Kubernetes cluster master/api server.
-type GrafanaOperator struct {
+// Auditor contains state for a Kubernetes cluster master/api server.
+type Auditor struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 	Controller       *controller.AuditorController
 }
 
-func (op *GrafanaOperator) Run(stopCh <-chan struct{}) error {
+func (op *Auditor) Run(stopCh <-chan struct{}) error {
 	go op.Controller.Run(stopCh)
 	return op.GenericAPIServer.PrepareRun().Run(stopCh)
 }
@@ -85,7 +86,7 @@ type CompletedConfig struct {
 }
 
 // Complete fills in any fields not set that are required to have valid data. It's mutating the receiver.
-func (c *GrafanaOperatorConfig) Complete() CompletedConfig {
+func (c *AuditorConfig) Complete() CompletedConfig {
 	completedCfg := completedConfig{
 		c.GenericConfig.Complete(),
 		c.ExtraConfig,
@@ -99,12 +100,15 @@ func (c *GrafanaOperatorConfig) Complete() CompletedConfig {
 	return CompletedConfig{&completedCfg}
 }
 
-// New returns a new instance of GrafanaOperator from the given config.
-func (c completedConfig) New() (*GrafanaOperator, error) {
+// New returns a new instance of Auditor from the given config.
+func (c completedConfig) New() (*Auditor, error) {
 	genericServer, err := c.GenericConfig.New("auditor", genericapiserver.NewEmptyDelegate()) // completion is done in Complete, no need for a second time
 	if err != nil {
 		return nil, err
 	}
+
+	license.NewLicenseEnforcer(c.ExtraConfig.ClientConfig, c.ExtraConfig.LicenseFile).Install(genericServer.Handler.NonGoRestfulMux)
+
 	ctrl, err := c.ExtraConfig.New()
 	if err != nil {
 		return nil, err
@@ -112,7 +116,7 @@ func (c completedConfig) New() (*GrafanaOperator, error) {
 
 	var admissionHooks []hooks.AdmissionHook
 
-	s := &GrafanaOperator{
+	s := &Auditor{
 		GenericAPIServer: genericServer,
 		Controller:       ctrl,
 	}

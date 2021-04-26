@@ -39,7 +39,7 @@ func New(
 		kubeClient: kubeClient,
 
 		name:      rand.WithUniqSuffix("auditor"),
-		namespace: rand.WithUniqSuffix("grafana"),
+		namespace: rand.WithUniqSuffix("auditor"),
 	}
 }
 

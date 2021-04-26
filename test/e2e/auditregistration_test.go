@@ -19,12 +19,12 @@ package e2e_test
 import (
 	"fmt"
 
-	"kubeshield.dev/auditor/test/e2e/framework"
+	"kmodules.xyz/auditor/test/e2e/framework"
 
 	. "github.com/onsi/ginkgo"
 )
 
-var _ = Describe("Grafana Operator E2E testing", func() {
+var _ = Describe("Auditor E2E testing", func() {
 	var (
 		f *framework.Invocation
 	)

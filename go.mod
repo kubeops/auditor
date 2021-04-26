@@ -1,56 +1,42 @@
-module kubeshield.dev/auditor
+module kmodules.xyz/auditor
 
-go 1.13
+go 1.15
 
 require (
-	cloud.google.com/go v0.56.0 // indirect
-	github.com/Azure/go-autorest/autorest v0.10.2 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.8.3 // indirect
-	github.com/NYTimes/gziphandler v1.1.1 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/go-openapi/spec v0.19.8
-	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/cloudevents/sdk-go/protocol/nats/v2 v2.4.1
+	github.com/cloudevents/sdk-go/v2 v2.4.1
+	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/golang/groupcache v0.0.0-20191227052852-215e87163ea7 // indirect
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/gofuzz v1.1.0
-	github.com/googleapis/gnostic v0.4.0 // indirect
-	github.com/gophercloud/gophercloud v0.11.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.14.6 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/imdario/mergo v0.3.6 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/kr/pretty v0.2.0 // indirect
-	github.com/mitchellh/mapstructure v1.2.2 // indirect
+	github.com/google/uuid v1.1.2
+	github.com/klauspost/compress v1.12.1 // indirect
+	github.com/nats-io/nats-server/v2 v2.2.2 // indirect
+	github.com/nats-io/nats.go v1.10.1-0.20210423182523-6cee9f05a45d
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
-	github.com/prometheus/client_golang v1.6.0 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
-	go.uber.org/atomic v1.6.0 // indirect
-	go.uber.org/zap v1.13.0 // indirect
-	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
-	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
-	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
-	golang.org/x/tools v0.0.0-20200603131246-cc40288be839 // indirect
-	gomodules.xyz/pointer v0.0.0-20201105071923-daf60fa55209 // indirect
+	go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178
+	go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
 	gomodules.xyz/x v0.0.0-20201105065653-91c568df6331
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/genproto v0.0.0-20200603110839-e855014d5736 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
 	k8s.io/api v0.18.9
 	k8s.io/apimachinery v0.18.9
 	k8s.io/apiserver v0.18.9
-	k8s.io/client-go v0.18.9
+	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
-	k8s.io/utils v0.0.0-20200414100711-2df71ebbae66 // indirect
-	kmodules.xyz/client-go v0.0.0-20210213000708-f480974ce46d
+	kmodules.xyz/client-go v0.0.0-20210425191612-0c5b92597c19
+	kmodules.xyz/resource-metadata v0.4.18-0.20210425222526-3e0183aa7fc8
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 	sigs.k8s.io/yaml v1.2.0
+)
+
+replace (
+	github.com/go-macaron/binding => github.com/gomodules/binding v0.0.0-20200226114658-71565367f820
+	gopkg.in/macaron.v1 => github.com/gomodules/macaron v1.3.2
 )
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
@@ -101,7 +87,7 @@ replace github.com/go-openapi/strfmt => github.com/go-openapi/strfmt v0.19.3
 
 replace github.com/go-openapi/swag => github.com/go-openapi/swag v0.19.5
 
-replace github.com/go-openapi/validate => github.com/go-openapi/validate v0.19.5
+replace github.com/go-openapi/validate => github.com/gomodules/validate v0.19.5-1.16
 
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.1
 
@@ -142,3 +128,8 @@ replace k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5
 replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.19.0-alpha.0.0.20200922200158-8b13196d8dc4
 
 replace k8s.io/utils => k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89
+
+replace (
+	github.com/docker/docker => github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
+	helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.0.3-0.20200119202455-afb1ef54d569
+)

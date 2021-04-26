@@ -22,23 +22,19 @@ import (
 	"io/ioutil"
 	"time"
 
-	"kubeshield.dev/auditor/apis/auditor/v1alpha1"
-	"kubeshield.dev/auditor/pkg/controller"
+	"kmodules.xyz/auditor/apis/auditor/v1alpha1"
+	"kmodules.xyz/auditor/pkg/controller"
+	"kmodules.xyz/client-go/tools/clusterid"
 
 	"github.com/spf13/pflag"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"kmodules.xyz/client-go/tools/clusterid"
 	"sigs.k8s.io/yaml"
 )
 
 type ExtraOptions struct {
-	PolicyFile string
-
-	// TODO: Should include full HTTP endpoint options, eg, CA, client certs
-	// eg: https://github.com/DirectXMan12/k8s-prometheus-adapter/blob/master/cmd/adapter/adapter.go#L57-L66
-	ReceiverAddress string
-	ReceiverToken   string
+	LicenseFile string
+	PolicyFile  string
 
 	MaxNumRequeues int
 	NumThreads     int
@@ -60,10 +56,9 @@ func NewExtraOptions() *ExtraOptions {
 func (s *ExtraOptions) AddGoFlags(fs *flag.FlagSet) {
 	clusterid.AddGoFlags(fs)
 
-	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
+	fs.StringVar(&s.LicenseFile, "license-file", s.LicenseFile, "Path to license file")
 
-	fs.StringVar(&s.ReceiverAddress, "receiver-addr", s.ReceiverAddress, "Receiver endpoint address")
-	fs.StringVar(&s.ReceiverToken, "receiver-token", s.ReceiverToken, "Token used to authenticate with receiver")
+	fs.StringVar(&s.PolicyFile, "policy-file", s.PolicyFile, "Path to policy file used to watch Kubernetes resources")
 
 	fs.Float64Var(&s.QPS, "qps", s.QPS, "The maximum QPS to the master from this client")
 	fs.IntVar(&s.Burst, "burst", s.Burst, "The maximum burst for throttle")
@@ -91,8 +86,8 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		}
 		cfg.Policy = policy
 	}
-	cfg.ReceiverAddress = s.ReceiverAddress
-	cfg.ReceiverToken = s.ReceiverToken
+
+	cfg.LicenseFile = s.LicenseFile
 
 	cfg.MaxNumRequeues = s.MaxNumRequeues
 	cfg.NumThreads = s.NumThreads
@@ -106,5 +101,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	if cfg.DynamicClient, err = dynamic.NewForConfig(cfg.ClientConfig); err != nil {
 		return err
 	}
+
 	return nil
 }
