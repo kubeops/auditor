@@ -58,8 +58,6 @@ github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
 # github.com/evanphx/json-patch v4.9.0+incompatible
 github.com/evanphx/json-patch
-# github.com/fatih/color v1.10.0
-github.com/fatih/color
 # github.com/fatih/structs v1.1.0
 github.com/fatih/structs
 # github.com/fsnotify/fsnotify v1.4.9
@@ -75,8 +73,6 @@ github.com/go-openapi/jsonreference
 github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.19.5 => github.com/go-openapi/swag v0.19.5
 github.com/go-openapi/swag
-# github.com/gobuffalo/flect v0.2.1
-github.com/gobuffalo/flect
 # github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.1
 ## explicit
 github.com/gogo/protobuf/gogoproto
@@ -96,9 +92,6 @@ github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/struct
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
-## explicit
-github.com/golangplus/testing/assert
 # github.com/google/btree v1.0.0
 github.com/google/btree
 # github.com/google/go-cmp v0.5.5
@@ -134,9 +127,6 @@ github.com/grpc-ecosystem/go-grpc-prometheus
 # github.com/hashicorp/golang-lru v0.5.3
 github.com/hashicorp/golang-lru
 github.com/hashicorp/golang-lru/simplelru
-# github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519
-## explicit
-github.com/hokaccha/go-prettyjson
 # github.com/hpcloud/tail v1.0.0
 github.com/hpcloud/tail
 github.com/hpcloud/tail/ratelimiter
@@ -159,10 +149,6 @@ github.com/liggitt/tabwriter
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/mattn/go-colorable v0.1.8
-github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.12
-github.com/mattn/go-isatty
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
 # github.com/mitchellh/mapstructure v1.1.2
@@ -251,14 +237,6 @@ github.com/spf13/cobra/doc
 # github.com/spf13/pflag v1.0.5
 ## explicit
 github.com/spf13/pflag
-# github.com/stripe/stripe-go/v72 v72.34.0
-## explicit
-github.com/stripe/stripe-go/v72
-github.com/stripe/stripe-go/v72/form
-github.com/stripe/stripe-go/v72/usagerecord
-# github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
-## explicit
-github.com/the-redback/go-oneliners
 # github.com/yudai/gojsondiff v1.0.0
 github.com/yudai/gojsondiff
 github.com/yudai/gojsondiff/formatter
@@ -329,7 +307,6 @@ golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
-golang.org/x/net/publicsuffix
 golang.org/x/net/trace
 golang.org/x/net/websocket
 # golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
@@ -962,9 +939,6 @@ k8s.io/kube-openapi/pkg/handler
 k8s.io/kube-openapi/pkg/schemaconv
 k8s.io/kube-openapi/pkg/util
 k8s.io/kube-openapi/pkg/util/proto
-# k8s.io/kubernetes v1.18.9 => github.com/kmodules/kubernetes v1.19.0-alpha.0.0.20200922200158-8b13196d8dc4
-## explicit
-k8s.io/kubernetes/pkg/apis/core
 # k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89 => k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89
 k8s.io/utils/buffer
 k8s.io/utils/integer
@@ -972,8 +946,6 @@ k8s.io/utils/net
 k8s.io/utils/path
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# kmodules.xyz/apiversion v0.2.0
-kmodules.xyz/apiversion
 # kmodules.xyz/client-go v0.0.0-20210425191612-0c5b92597c19
 ## explicit
 kmodules.xyz/client-go
@@ -994,9 +966,6 @@ kmodules.xyz/client-go/tools/clusterid
 kmodules.xyz/resource-metadata/apis/meta
 kmodules.xyz/resource-metadata/apis/meta/v1alpha1
 kmodules.xyz/resource-metadata/crds
-kmodules.xyz/resource-metadata/hub
-kmodules.xyz/resource-metadata/hub/resourceclasses
-kmodules.xyz/resource-metadata/hub/resourcedescriptors
 # kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6
 ## explicit
 kmodules.xyz/webhook-runtime/admission/v1beta1

@@ -8,11 +8,9 @@ require (
 	github.com/go-openapi/spec v0.19.3
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
-	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
 	github.com/klauspost/compress v1.12.1 // indirect
 	github.com/nats-io/nats-server/v2 v2.2.2 // indirect
 	github.com/nats-io/nats.go v1.10.1-0.20210423182523-6cee9f05a45d
@@ -20,8 +18,6 @@ require (
 	github.com/onsi/gomega v1.8.1
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stripe/stripe-go/v72 v72.34.0
-	github.com/the-redback/go-oneliners v0.0.0-20190417084731-74f7694e6dae
 	go.bytebuilders.dev/license-verifier v0.8.1-0.20210409051652-ce46dc8c2178
 	go.bytebuilders.dev/license-verifier/kubernetes v0.8.1-0.20210409051652-ce46dc8c2178
 	gomodules.xyz/runtime v0.0.0-20201104200926-d838b09dda8b
@@ -32,7 +28,6 @@ require (
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
-	k8s.io/kubernetes v1.18.9
 	kmodules.xyz/client-go v0.0.0-20210425191612-0c5b92597c19
 	kmodules.xyz/resource-metadata v0.4.18-0.20210425222526-3e0183aa7fc8
 	kmodules.xyz/webhook-runtime v0.0.0-20201105073856-2dc7382b88c6

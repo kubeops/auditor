@@ -48,7 +48,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer sub.Unsubscribe()
+	defer func() {
+		err = sub.Unsubscribe()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	select {}
 
