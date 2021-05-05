@@ -22,7 +22,6 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -36,6 +35,7 @@ import (
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/discovery"
 	"kmodules.xyz/client-go/tools/clusterid"
 )
@@ -178,7 +178,7 @@ func NewConnection(natscred NatsCredential) (nc *nats.Conn, err error) {
 			return nc, nil
 		}
 
-		log.Printf("could not connect to NATS: %s\n", err)
+		klog.Infof("could not connect to NATS: %s\n", err)
 
 		time.Sleep(500 * time.Millisecond)
 	}
@@ -187,23 +187,23 @@ func NewConnection(natscred NatsCredential) (nc *nats.Conn, err error) {
 // called during errors subscriptions etc
 func errorHandler(nc *nats.Conn, s *nats.Subscription, err error) {
 	if s != nil {
-		log.Printf("Error in NATS connection: %s: subscription: %s: %s", nc.ConnectedUrl(), s.Subject, err)
+		klog.Infof("Error in NATS connection: %s: subscription: %s: %s", nc.ConnectedUrl(), s.Subject, err)
 		return
 	}
 
-	log.Printf("Error in NATS connection: %s: %s", nc.ConnectedUrl(), err)
+	klog.Infof("Error in NATS connection: %s: %s", nc.ConnectedUrl(), err)
 }
 
 // called after reconnection
 func reconnectHandler(nc *nats.Conn) {
-	log.Printf("Reconnected to %s", nc.ConnectedUrl())
+	klog.Infof("Reconnected to %s", nc.ConnectedUrl())
 }
 
 // called after disconnection
 func disconnectHandler(nc *nats.Conn, err error) {
 	if err != nil {
-		log.Printf("Disconnected from NATS due to error: %v", err)
+		klog.Infof("Disconnected from NATS due to error: %v", err)
 	} else {
-		log.Printf("Disconnected from NATS")
+		klog.Infof("Disconnected from NATS")
 	}
 }

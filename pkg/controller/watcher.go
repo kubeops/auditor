@@ -22,7 +22,6 @@ import (
 
 	"kubeops.dev/auditor/pkg/controller/receiver"
 
-	"gomodules.xyz/x/log"
 	stringz "gomodules.xyz/x/strings"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -31,7 +30,7 @@ import (
 	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/tools/clusterid"
 	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
 )
@@ -58,7 +57,7 @@ func (c *AuditorController) initWatchers() error {
 				Kind:  u.GroupVersionKind().Kind,
 			}, u.GroupVersionKind().Version)
 			if err != nil {
-				log.Errorln(err)
+				klog.Errorln(err)
 			}
 			u.SetManagedFields(nil)
 
@@ -79,7 +78,7 @@ func (c *AuditorController) initWatchers() error {
 			}
 
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventCreate, opEvent); err != nil {
-				log.Errorf("Error while publishing event, reason: %v", err)
+				klog.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
 
@@ -103,7 +102,7 @@ func (c *AuditorController) initWatchers() error {
 				Kind:  uNew.GroupVersionKind().Kind,
 			}, uNew.GroupVersionKind().Version)
 			if err != nil {
-				log.Errorln(err)
+				klog.Errorln(err)
 			}
 
 			uNew.SetManagedFields(nil)
@@ -124,7 +123,7 @@ func (c *AuditorController) initWatchers() error {
 			}
 
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventUpdate, opEvent); err != nil {
-				log.Errorf("Error while publishing event, reason: %v", err)
+				klog.Errorf("Error while publishing event, reason: %v", err)
 			}
 
 		},
@@ -143,7 +142,7 @@ func (c *AuditorController) initWatchers() error {
 				Kind:  u.GroupVersionKind().Kind,
 			}, u.GroupVersionKind().Version)
 			if err != nil {
-				log.Errorln(err)
+				klog.Errorln(err)
 			}
 			u.SetManagedFields(nil)
 			opEvent := receiver.OperatorEvent{
@@ -163,7 +162,7 @@ func (c *AuditorController) initWatchers() error {
 			}
 
 			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventDelete, opEvent); err != nil {
-				log.Errorf("Error while publishing event, reason: %v", err)
+				klog.Errorf("Error while publishing event, reason: %v", err)
 			}
 		},
 	}
