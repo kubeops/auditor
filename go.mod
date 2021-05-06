@@ -9,7 +9,7 @@ require (
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
-	github.com/nats-io/nats.go v1.9.1
+	github.com/nats-io/nats.go v1.10.0
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
 	github.com/spf13/cobra v1.1.3
@@ -33,6 +33,7 @@ require (
 
 replace (
 	github.com/go-macaron/binding => github.com/gomodules/binding v0.0.0-20200226114658-71565367f820
+	github.com/nats-io/nats.go => github.com/nats-io/nats.go v1.10.0
 	gopkg.in/macaron.v1 => github.com/gomodules/macaron v1.3.2
 )
 
@@ -119,8 +120,6 @@ replace google.golang.org/api => google.golang.org/api v0.20.0
 replace google.golang.org/genproto => google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.27.1
-
-replace gopkg.in/yaml.v2 => gopkg.in/yaml.v2 v2.3.0
 
 replace helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.1.0-rc.1.0.20210503022716-7e2d4913a125
 
