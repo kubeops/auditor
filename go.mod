@@ -6,7 +6,7 @@ require (
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/go-openapi/spec v0.19.5
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/google/gofuzz v1.1.0
 	github.com/google/uuid v1.1.2
 	github.com/nats-io/nats.go v1.9.1
@@ -16,16 +16,17 @@ require (
 	github.com/spf13/pflag v1.0.5
 	go.bytebuilders.dev/license-verifier v0.9.2-0.20210505192632-0c63c5af925d
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.1
+	gomodules.xyz/kglog v0.0.1
 	gomodules.xyz/runtime v0.2.0
-	gomodules.xyz/x v0.0.3
+	gomodules.xyz/x v0.0.4
 	k8s.io/api v0.21.0
 	k8s.io/apimachinery v0.21.0
 	k8s.io/apiserver v0.21.0
 	k8s.io/client-go v0.21.0
 	k8s.io/klog/v2 v2.8.0
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
-	kmodules.xyz/client-go v0.0.0-20210504024435-1eb80721e9b8
-	kmodules.xyz/resource-metadata v0.0.0-00010101000000-000000000000
+	kmodules.xyz/client-go v0.0.0-20210505231546-fa4fb8e1d04e
+	kmodules.xyz/resource-metadata v0.5.2
 	kmodules.xyz/webhook-runtime v0.0.0-20210504042742-3a9911e3dcdc
 	sigs.k8s.io/yaml v1.2.0
 )

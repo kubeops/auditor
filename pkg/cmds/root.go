@@ -23,11 +23,11 @@ import (
 	"kubeops.dev/auditor/apis/auditor/install"
 
 	"github.com/spf13/cobra"
+	"gomodules.xyz/kglog"
 	"gomodules.xyz/x/flags"
 	v "gomodules.xyz/x/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
-	"kmodules.xyz/client-go/logs"
 	"kmodules.xyz/client-go/tools/cli"
 )
 
@@ -44,7 +44,7 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
-	logs.ParseFlags()
+	kglog.ParseFlags()
 	rootCmd.PersistentFlags().BoolVar(&cli.EnableAnalytics, "enable-analytics", cli.EnableAnalytics, "Send analytical events to Google Analytics")
 
 	rootCmd.AddCommand(v.NewCmdVersion())

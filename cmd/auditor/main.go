@@ -23,9 +23,9 @@ import (
 
 	"go.bytebuilders.dev/license-verifier/info"
 	_ "go.bytebuilders.dev/license-verifier/info"
+	"gomodules.xyz/kglog"
 	_ "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"kmodules.xyz/client-go/logs"
 )
 
 func main() {
@@ -49,8 +49,8 @@ hqDntdQyIGPXtqiMjPjKUxUMCSsAGL3ZqrMe9Q==
 -----END CERTIFICATE-----`
 	info.ProductName = "kubedb-community"
 
-	logs.InitLogs()
-	defer logs.FlushLogs()
+	kglog.InitLogs()
+	defer kglog.FlushLogs()
 
 	if err := cmds.NewRootCmd().Execute(); err != nil {
 		os.Exit(1)
