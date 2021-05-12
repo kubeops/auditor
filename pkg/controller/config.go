@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -83,7 +84,7 @@ func (c *Config) New() (*AuditorController, error) {
 	}
 	licenseBytes, err := ioutil.ReadFile(c.LicenseFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read license, reason: %v", err)
 	}
 
 	opts := verifier.Options{

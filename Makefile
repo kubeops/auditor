@@ -207,7 +207,7 @@ gen-crds:
 			paths="./apis/..."              \
 			output:crd:artifacts:config=crds
 
-crds_to_patch := auditor.appscode.com_dashboards.yaml
+crds_to_patch :=
 
 .PHONY: patch-crds
 patch-crds: $(addprefix patch-crd-, $(crds_to_patch))
@@ -219,8 +219,8 @@ patch-crd-%: $(BUILD_DIRS)
 .PHONY: label-crds
 label-crds: $(BUILD_DIRS)
 	@for f in crds/*.yaml; do \
-		echo "applying app.kubernetes.io/name=kmodules label to $$f"; \
-		kubectl label --overwrite -f $$f --local=true -o yaml app.kubernetes.io/name=kmodules > bin/crd.yaml; \
+		echo "applying app.kubernetes.io/name=auditor label to $$f"; \
+		kubectl label --overwrite -f $$f --local=true -o yaml app.kubernetes.io/name=auditor > bin/crd.yaml; \
 		mv bin/crd.yaml $$f; \
 	done
 
@@ -244,22 +244,8 @@ gen-crd-protos-%:
 			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
 			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kubeops.dev/custom-resources/apis/appcatalog/v1alpha1,-kubeops.dev/monitoring-agent-api/api/v1,-kubeops.dev/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kubeops.dev/auditor/apis/$(subst _,/,$*)
 
-.PHONY: gen-bindata
-gen-bindata:
-	@docker run                                                 \
-	    -i                                                      \
-	    --rm                                                    \
-	    -u $$(id -u):$$(id -g)                                  \
-	    -v $$(pwd):/src                                         \
-	    -w /src/crds                                        \
-		-v /tmp:/.cache                                         \
-	    --env HTTP_PROXY=$(HTTP_PROXY)                          \
-	    --env HTTPS_PROXY=$(HTTPS_PROXY)                        \
-	    $(BUILD_IMAGE)                                          \
-	    go-bindata -ignore=\\.go -ignore=\\.DS_Store -mode=0644 -modtime=1573722179 -o bindata.go -pkg crds ./...
-
 .PHONY: manifests
-manifests: gen-crds patch-crds label-crds gen-bindata
+manifests: gen-crds patch-crds label-crds
 
 .PHONY: gen
 gen: clientset
@@ -474,12 +460,12 @@ else
 	IMAGE_PULL_SECRETS = --set imagePullSecrets[0].name=$(REGISTRY_SECRET)
 endif
 
-POLICY_FILE ?= "$(HOME)/go/src/kubeops.dev/auditor/hack/policy/default-policy.yaml"
+POLICY_FILE ?= "./hack/policy/default-policy.yaml"
 LICENSE_FILE ?=
 
 .PHONY: install
 install:
-	@cd ../installer; \
+	@cd ../auditor-installer; \
 	helm install auditor charts/auditor --wait \
 		--namespace=$(KUBE_NAMESPACE) \
 		--set-file license=$(LICENSE_FILE) \
@@ -491,12 +477,12 @@ install:
 
 .PHONY: uninstall
 uninstall:
-	@cd ../installer; \
+	@cd ../auditor-installer; \
 	helm uninstall auditor --namespace=$(KUBE_NAMESPACE) || true
 
 .PHONY: purge
 purge: uninstall
-	kubectl delete crds -l app.kubernetes.io/name=kmodules
+	kubectl delete crds -l app.kubernetes.io/name=auditor
 
 .PHONY: dev
 dev: gen fmt push
@@ -575,9 +561,11 @@ release:
 clean:
 	rm -rf .go bin
 
+KUBECONFIG:=$(HOME)/.kube/config
+
 .PHONY: run
 run:
-	go run  -mod=vendor cmd/auditor/*.go run \
+	go run -mod=vendor cmd/auditor/*.go run \
 		--v=3 --secure-port=8443 \
 		--kubeconfig=$(KUBECONFIG) \
 		--authorization-kubeconfig=$(KUBECONFIG) \
@@ -588,7 +576,7 @@ run:
 
 .PHONY: usage
 usage:
-	GO111MODULE=on go run -mod=vendor ./cmd/auditor usage \
+	go run -mod=vendor ./cmd/auditor usage \
 		--server="nats://localhost:4222"
 
 # make and load docker image to kind cluster
