@@ -17,14 +17,11 @@ limitations under the License.
 package cmds
 
 import (
-	"flag"
 	"os"
 
 	"kubeops.dev/auditor/apis/auditor/install"
 
 	"github.com/spf13/cobra"
-	"gomodules.xyz/kglog"
-	"gomodules.xyz/x/flags"
 	v "gomodules.xyz/x/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
@@ -37,14 +34,11 @@ func NewRootCmd() *cobra.Command {
 		Short:             `Kubernetes Auditor by AppsCode`,
 		DisableAutoGenTag: true,
 		PersistentPreRun: func(c *cobra.Command, args []string) {
-			flags.DumpAll(c.Flags())
 			cli.SendAnalytics(c, v.Version.Version)
 
 			install.Install(clientsetscheme.Scheme)
 		},
 	}
-	rootCmd.PersistentFlags().AddGoFlagSet(flag.CommandLine)
-	kglog.ParseFlags()
 	rootCmd.PersistentFlags().BoolVar(&cli.EnableAnalytics, "enable-analytics", cli.EnableAnalytics, "Send analytical events to Google Analytics")
 
 	rootCmd.AddCommand(v.NewCmdVersion())

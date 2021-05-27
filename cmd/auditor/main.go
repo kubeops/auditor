@@ -49,10 +49,11 @@ hqDntdQyIGPXtqiMjPjKUxUMCSsAGL3ZqrMe9Q==
 -----END CERTIFICATE-----`
 	info.ProductName = "kubedb-community"
 
-	kglog.InitLogs()
+	rootCmd := cmds.NewRootCmd()
+	kglog.Init(rootCmd, true)
 	defer kglog.FlushLogs()
 
-	if err := cmds.NewRootCmd().Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
