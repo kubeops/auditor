@@ -98,7 +98,7 @@ func (c *Config) New() (*AuditorController, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(info.RegistrationAPI, "application/json", bytes.NewReader(data))
+	resp, err := http.Post(info.RegistrationAPIEndpoint(), "application/json", bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}

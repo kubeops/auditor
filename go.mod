@@ -9,13 +9,13 @@ require (
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.1.2
-	github.com/nats-io/nats.go v1.10.0
+	github.com/nats-io/nats.go v1.11.0
 	github.com/onsi/ginkgo v1.15.0
 	github.com/onsi/gomega v1.10.5
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	go.bytebuilders.dev/license-verifier v0.9.2-0.20210505192632-0c63c5af925d
-	go.bytebuilders.dev/license-verifier/kubernetes v0.9.1
+	go.bytebuilders.dev/license-verifier v0.9.2
+	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	gomodules.xyz/kglog v0.0.3
 	gomodules.xyz/runtime v0.2.0
 	gomodules.xyz/x v0.0.4
@@ -30,8 +30,6 @@ require (
 	kmodules.xyz/webhook-runtime v0.0.0-20210504065021-a56f52311942
 	sigs.k8s.io/yaml v1.2.0
 )
-
-replace github.com/nats-io/nats.go => github.com/nats-io/nats.go v1.11.0
 
 replace bitbucket.org/ww/goautoneg => gomodules.xyz/goautoneg v0.0.0-20120707110453-a547fc61f48d
 
