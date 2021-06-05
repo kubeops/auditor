@@ -23,7 +23,7 @@ import (
 
 	"go.bytebuilders.dev/license-verifier/info"
 	_ "go.bytebuilders.dev/license-verifier/info"
-	"gomodules.xyz/kglog"
+	"gomodules.xyz/logs"
 	_ "k8s.io/client-go/kubernetes/fake"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
@@ -50,8 +50,8 @@ hqDntdQyIGPXtqiMjPjKUxUMCSsAGL3ZqrMe9Q==
 	info.ProductName = "kubedb-community"
 
 	rootCmd := cmds.NewRootCmd()
-	kglog.Init(rootCmd, true)
-	defer kglog.FlushLogs()
+	logs.Init(rootCmd, true)
+	defer logs.FlushLogs()
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

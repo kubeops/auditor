@@ -20,11 +20,11 @@ import (
 	"flag"
 	"fmt"
 
-	"kubeops.dev/auditor/pkg/controller/receiver"
-
 	"github.com/nats-io/nats.go"
+	api "go.bytebuilders.dev/audit/api/v1"
+	"go.bytebuilders.dev/audit/lib"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	kmapi "kmodules.xyz/client-go/api/v1"
 	"sigs.k8s.io/yaml"
 )
 
@@ -48,7 +48,14 @@ func main() {
 		panic(err)
 	}
 
-	if err = receiver.PublishEvent(nc, *subject, "example", opEvent); err != nil {
+	publisher := lib.NewEventPublisher(&lib.NatsConfig{
+		LicenseID: "xyz",
+		Subject:   *subject,
+		Server:    *server,
+		Client:    nc,
+	}, nil, nil, nil)
+
+	if err = publisher.Publish(opEvent, "example"); err != nil {
 		panic(err)
 	}
 }
@@ -67,7 +74,7 @@ func getNatsClient(server, creds string) (*nats.Conn, error) {
 	return nc, nil
 }
 
-func getExampleReceiverEvent() (receiver.OperatorEvent, error) {
+func getExampleReceiverEvent() (*api.Event, error) {
 	pod := `apiVersion: v1
 kind: Pod
 metadata:
@@ -85,12 +92,12 @@ spec:
 
 	u := &unstructured.Unstructured{}
 	if err := yaml.Unmarshal([]byte(pod), u); err != nil {
-		return receiver.OperatorEvent{}, err
+		return nil, err
 	}
 
-	opEvent := receiver.OperatorEvent{
+	return &api.Event{
 		Resource: u,
-		ResourceID: v1alpha1.ResourceID{
+		ResourceID: kmapi.ResourceID{
 			Group:   "",
 			Version: "v1",
 			Name:    "pods",
@@ -98,7 +105,5 @@ spec:
 			Scope:   "Namespaced",
 		},
 		LicenseID: "abc-xyz-123",
-	}
-
-	return opEvent, nil
+	}, nil
 }

@@ -17,28 +17,17 @@ limitations under the License.
 package controller
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
 	"time"
 
 	"kubeops.dev/auditor/apis/auditor/v1alpha1"
 	"kubeops.dev/auditor/pkg/eventer"
 
-	"github.com/nats-io/nats.go"
-	verifier "go.bytebuilders.dev/license-verifier"
-	"go.bytebuilders.dev/license-verifier/info"
+	"go.bytebuilders.dev/audit/lib"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/discovery"
-	"kmodules.xyz/client-go/tools/clusterid"
 )
 
 type config struct {
@@ -65,62 +54,12 @@ func NewConfig(clientConfig *rest.Config) *Config {
 	}
 }
 
-// NatsCredential represents the api response of the register licensed user api
-type NatsCredential struct {
-	LicenseID   string `json:"licenseID"`
-	NatsSubject string `json:"natsSubject"`
-	NatsServer  string `json:"natsServer"`
-	Credential  []byte `json:"credential"`
-}
-
 func (c *Config) New() (*AuditorController, error) {
 	if err := discovery.IsDefaultSupportedVersion(c.KubeClient); err != nil {
 		return nil, err
 	}
 
-	clusteruid, err := clusterid.ClusterUID(c.KubeClient.CoreV1().Namespaces())
-	if err != nil {
-		return nil, err
-	}
-	licenseBytes, err := ioutil.ReadFile(c.LicenseFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read license, reason: %v", err)
-	}
-
-	opts := verifier.Options{
-		ClusterUID: clusteruid,
-		Features:   info.ProductName,
-		CACert:     []byte(info.LicenseCA),
-		License:    licenseBytes,
-	}
-	data, err := json.Marshal(opts)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.Post(info.RegistrationAPIEndpoint(), "application/json", bytes.NewReader(data))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var buf bytes.Buffer
-	_, err = io.Copy(&buf, resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(resp.Status + ", " + buf.String())
-	}
-
-	var natscred NatsCredential
-	err = json.Unmarshal(buf.Bytes(), &natscred)
-	if err != nil {
-		return nil, err
-	}
-
-	nc, err := NewConnection(natscred)
+	natscfg, err := lib.NewNatsConfig(c.KubeClient.CoreV1().Namespaces(), c.LicenseFile)
 	if err != nil {
 		return nil, err
 	}
@@ -133,78 +72,7 @@ func (c *Config) New() (*AuditorController, error) {
 		dynamicInformerFactory: dynamicinformer.NewDynamicSharedInformerFactory(c.DynamicClient, c.ResyncPeriod),
 		recorder:               eventer.NewEventRecorder(c.KubeClient, "auditor"),
 
-		natsClient:  nc,
-		natsSubject: natscred.NatsSubject,
-		licenseID:   natscred.LicenseID,
-	}
-
-	if err := ctrl.initWatchers(); err != nil {
-		return nil, err
+		nats: natscfg,
 	}
 	return ctrl, nil
-}
-
-// NewConnection creates a new NATS connection configured from the Environment
-func NewConnection(natscred NatsCredential) (nc *nats.Conn, err error) {
-	servers := natscred.NatsServer
-
-	opts := []nats.Option{
-		nats.Name("Auditor"),
-		nats.MaxReconnects(-1),
-		nats.ErrorHandler(errorHandler),
-		nats.ReconnectHandler(reconnectHandler),
-		nats.DisconnectErrHandler(disconnectHandler),
-		//nats.UseOldRequestStyle(),
-	}
-
-	credFile := "/tmp/nats.creds"
-	if err = ioutil.WriteFile(credFile, natscred.Credential, 0600); err != nil {
-		return nil, err
-	}
-
-	opts = append(opts, nats.UserCredentials(credFile))
-
-	//if os.Getenv("NATS_CERTIFICATE") != "" && os.Getenv("NATS_KEY") != "" {
-	//	opts = append(opts, nats.ClientCert(os.Getenv("NATS_CERTIFICATE"), os.Getenv("NATS_KEY")))
-	//}
-	//
-	//if os.Getenv("NATS_CA") != "" {
-	//	opts = append(opts, nats.RootCAs(os.Getenv("NATS_CA")))
-	//}
-
-	// initial connections can error due to DNS lookups etc, just retry, eventually with backoff
-	for {
-		nc, err := nats.Connect(servers, opts...)
-		if err == nil {
-			return nc, nil
-		}
-
-		klog.Infof("could not connect to NATS: %s\n", err)
-
-		time.Sleep(500 * time.Millisecond)
-	}
-}
-
-// called during errors subscriptions etc
-func errorHandler(nc *nats.Conn, s *nats.Subscription, err error) {
-	if s != nil {
-		klog.Infof("Error in NATS connection: %s: subscription: %s: %s", nc.ConnectedUrl(), s.Subject, err)
-		return
-	}
-
-	klog.Infof("Error in NATS connection: %s: %s", nc.ConnectedUrl(), err)
-}
-
-// called after reconnection
-func reconnectHandler(nc *nats.Conn) {
-	klog.Infof("Reconnected to %s", nc.ConnectedUrl())
-}
-
-// called after disconnection
-func disconnectHandler(nc *nats.Conn, err error) {
-	if err != nil {
-		klog.Infof("Disconnected from NATS due to error: %v", err)
-	} else {
-		klog.Infof("Disconnected from NATS")
-	}
 }
