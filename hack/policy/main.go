@@ -20,10 +20,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"kubeops.dev/auditor/apis/auditor/v1alpha1"
-
 	"gomodules.xyz/x/ioutil"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	"sigs.k8s.io/yaml"
 )
 

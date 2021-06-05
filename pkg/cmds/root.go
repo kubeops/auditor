@@ -19,13 +19,12 @@ package cmds
 import (
 	"os"
 
-	"kubeops.dev/auditor/apis/auditor/install"
-
 	"github.com/spf13/cobra"
 	v "gomodules.xyz/x/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
 	"kmodules.xyz/client-go/tools/cli"
+	"kmodules.xyz/custom-resources/apis/auditor/install"
 )
 
 func NewRootCmd() *cobra.Command {

@@ -3,9 +3,7 @@ module kubeops.dev/auditor
 go 1.16
 
 require (
-	github.com/go-openapi/spec v0.19.5
 	github.com/gogo/protobuf v1.3.2
-	github.com/google/gofuzz v1.2.0
 	github.com/nats-io/nats.go v1.11.0
 	github.com/onsi/ginkgo v1.15.0
 	github.com/onsi/gomega v1.10.5
@@ -22,8 +20,8 @@ require (
 	k8s.io/apiserver v0.21.0
 	k8s.io/client-go v0.21.0
 	k8s.io/klog/v2 v2.8.0
-	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
 	kmodules.xyz/client-go v0.0.0-20210605021217-cabaee7b953e
+	kmodules.xyz/custom-resources v0.0.0-20210605111625-741fcb992541
 	kmodules.xyz/resource-metadata v0.5.6-0.20210605023550-078e9b8f32c7
 	kmodules.xyz/webhook-runtime v0.0.0-20210504065021-a56f52311942
 	sigs.k8s.io/yaml v1.2.0

@@ -1,11 +1,11 @@
 /*
 Copyright AppsCode Inc. and Contributors
 
-Licensed under the AppsCode Community License 1.0.0 (the "License");
+Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    https://github.com/appscode/licenses/raw/1.0.0/AppsCode-Community-1.0.0.md
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package install
+// Package v1alpha1 is the v1alpha1 version of the API.
 
-import (
-	"testing"
+// +k8s:deepcopy-gen=package,register
+// +k8s:conversion-gen=kmodules.xyz/custom-resources/apis/auditor
+// +k8s:openapi-gen=true
+// +k8s:defaulter-gen=TypeMeta
 
-	clientsetscheme "k8s.io/client-go/kubernetes/scheme"
-)
-
-func TestPruneTypes(t *testing.T) {
-	Install(clientsetscheme.Scheme)
-}
+// +groupName=auditor.appscode.com
+package v1alpha1

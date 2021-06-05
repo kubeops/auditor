@@ -22,13 +22,13 @@ import (
 	"io/ioutil"
 	"time"
 
-	"kubeops.dev/auditor/apis/auditor/v1alpha1"
 	"kubeops.dev/auditor/pkg/controller"
 
 	"github.com/spf13/pflag"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/tools/clusterid"
+	"kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 	"sigs.k8s.io/yaml"
 )
 

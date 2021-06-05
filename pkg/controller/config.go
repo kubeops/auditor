@@ -19,7 +19,6 @@ package controller
 import (
 	"time"
 
-	"kubeops.dev/auditor/apis/auditor/v1alpha1"
 	"kubeops.dev/auditor/pkg/eventer"
 
 	"go.bytebuilders.dev/audit/lib"
@@ -28,6 +27,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"kmodules.xyz/client-go/discovery"
+	"kmodules.xyz/custom-resources/apis/auditor/v1alpha1"
 )
 
 type config struct {
