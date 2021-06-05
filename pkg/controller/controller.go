@@ -19,14 +19,14 @@ package controller
 import (
 	"fmt"
 
-	"github.com/golang/glog"
-	"github.com/nats-io/nats.go"
+	"go.bytebuilders.dev/audit/lib"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/klog/v2"
 )
 
 type AuditorController struct {
@@ -39,12 +39,14 @@ type AuditorController struct {
 
 	dynamicInformerFactory dynamicinformer.DynamicSharedInformerFactory
 
-	natsClient  *nats.Conn
-	natsSubject string
-	licenseID   string
+	nats *lib.NatsConfig
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {
+	if err := c.initWatchers(stopCh); err != nil {
+		runtime.HandleError(err)
+		return
+	}
 	go c.RunInformers(stopCh)
 
 	<-stopCh
@@ -53,7 +55,7 @@ func (c *AuditorController) Run(stopCh <-chan struct{}) {
 func (c *AuditorController) RunInformers(stopCh <-chan struct{}) {
 	defer runtime.HandleCrash()
 
-	glog.Info("Starting Auditor")
+	klog.Info("Starting Auditor")
 
 	c.dynamicInformerFactory.Start(stopCh)
 	for _, v := range c.dynamicInformerFactory.WaitForCacheSync(stopCh) {
@@ -64,5 +66,5 @@ func (c *AuditorController) RunInformers(stopCh <-chan struct{}) {
 	}
 
 	<-stopCh
-	glog.Info("Stopping Auditor")
+	klog.Info("Stopping Auditor")
 }

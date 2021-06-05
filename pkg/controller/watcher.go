@@ -17,155 +17,47 @@ limitations under the License.
 package controller
 
 import (
-	"fmt"
 	"strings"
 
-	"kubeops.dev/auditor/pkg/controller/receiver"
-
+	"go.bytebuilders.dev/audit/lib"
 	stringz "gomodules.xyz/x/strings"
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/discovery/cached/memory"
-	"k8s.io/client-go/restmapper"
-	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
-	"kmodules.xyz/client-go/tools/clusterid"
-	"kmodules.xyz/resource-metadata/apis/meta/v1alpha1"
+	disco_util "kmodules.xyz/client-go/discovery"
+	dynamicfactory "kmodules.xyz/client-go/dynamic/factory"
+	"kmodules.xyz/resource-metadata/pkg/graph"
 )
 
-func (c *AuditorController) initWatchers() error {
-	cid, err := clusterid.ClusterUID(c.kubeClient.CoreV1().Namespaces())
+func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
+	disco := c.kubeClient.Discovery()
+	mapper := disco_util.NewResourceMapper(disco_util.NewRestMapper(disco))
+	factory := dynamicfactory.NewSharedCached(c.dynamicInformerFactory, stopCh)
+	//fn := lib.BillingEventCreator{
+	//	Mapper: mapper,
+	//	LicenseID: c.nats.LicenseID,
+	//}
+	g, err := graph.LoadGraphOfKnownResources()
 	if err != nil {
 		return err
 	}
-	fmt.Println("cluster id:", cid)
-
-	disco := memory.NewMemCacheClient(c.kubeClient.Discovery())
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(disco)
-
-	handler := cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			u, ok := obj.(*unstructured.Unstructured)
-			if !ok {
-				return
-			}
-
-			m, err := mapper.RESTMapping(schema.GroupKind{
-				Group: u.GroupVersionKind().Group,
-				Kind:  u.GroupVersionKind().Kind,
-			}, u.GroupVersionKind().Version)
-			if err != nil {
-				klog.Errorln(err)
-			}
-			u.SetManagedFields(nil)
-
-			opEvent := receiver.OperatorEvent{
-				Resource: u,
-				ResourceID: v1alpha1.ResourceID{
-					Group:   m.Resource.Group,
-					Version: m.Resource.Version,
-					Name:    m.Resource.Resource,
-					Kind:    m.GroupVersionKind.Kind,
-					Scope:   v1alpha1.NamespaceScoped,
-				},
-				LicenseID: c.licenseID,
-			}
-
-			if m.Scope.Name() != meta.RESTScopeNameNamespace {
-				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
-			}
-
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventCreate, opEvent); err != nil {
-				klog.Errorf("Error while publishing event, reason: %v", err)
-			}
+	fn2 := lib.AuditEventCreator{
+		Graph: g,
+		Finder: &graph.ObjectFinder{
+			Factory: factory,
+			Mapper:  mapper,
 		},
-
-		// TODO: Here only updated yaml is sent
-		// TODO: Previous yaml also to be sent
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			uOld, ok := oldObj.(*unstructured.Unstructured)
-			if !ok {
-				return
-			}
-			uNew, ok := newObj.(*unstructured.Unstructured)
-			if !ok {
-				return
-			}
-			if uOld.GetUID() == uNew.GetUID() && uOld.GetGeneration() == uNew.GetGeneration() {
-				return
-			}
-
-			m, err := mapper.RESTMapping(schema.GroupKind{
-				Group: uNew.GroupVersionKind().Group,
-				Kind:  uNew.GroupVersionKind().Kind,
-			}, uNew.GroupVersionKind().Version)
-			if err != nil {
-				klog.Errorln(err)
-			}
-
-			uNew.SetManagedFields(nil)
-			opEvent := receiver.OperatorEvent{
-				Resource: uNew,
-				ResourceID: v1alpha1.ResourceID{
-					Group:   m.Resource.Group,
-					Version: m.Resource.Version,
-					Name:    m.Resource.Resource,
-					Kind:    m.GroupVersionKind.Kind,
-					Scope:   v1alpha1.NamespaceScoped,
-				},
-				LicenseID: c.licenseID,
-			}
-
-			if m.Scope.Name() != meta.RESTScopeNameNamespace {
-				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
-			}
-
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventUpdate, opEvent); err != nil {
-				klog.Errorf("Error while publishing event, reason: %v", err)
-			}
-
-		},
-		DeleteFunc: func(obj interface{}) {
-			if d, ok := obj.(cache.DeletedFinalStateUnknown); ok {
-				fmt.Println(d.Key)
-				return
-			}
-			u, ok := obj.(*unstructured.Unstructured)
-			if !ok {
-				return
-			}
-
-			m, err := mapper.RESTMapping(schema.GroupKind{
-				Group: u.GroupVersionKind().Group,
-				Kind:  u.GroupVersionKind().Kind,
-			}, u.GroupVersionKind().Version)
-			if err != nil {
-				klog.Errorln(err)
-			}
-			u.SetManagedFields(nil)
-			opEvent := receiver.OperatorEvent{
-				Resource: u,
-				ResourceID: v1alpha1.ResourceID{
-					Group:   m.Resource.Group,
-					Version: m.Resource.Version,
-					Name:    m.Resource.Resource,
-					Kind:    m.GroupVersionKind.Kind,
-					Scope:   v1alpha1.NamespaceScoped,
-				},
-				LicenseID: c.licenseID,
-			}
-
-			if m.Scope.Name() != meta.RESTScopeNameNamespace {
-				opEvent.ResourceID.Scope = v1alpha1.ClusterScoped
-			}
-
-			if err = receiver.PublishEvent(c.natsClient, c.natsSubject, receiver.EventDelete, opEvent); err != nil {
-				klog.Errorf("Error while publishing event, reason: %v", err)
-			}
-		},
+		Factory:   factory,
+		Mapper:    mapper,
+		LicenseID: c.nats.LicenseID,
 	}
+
+	handler := lib.NewEventPublisher(
+		c.nats,
+		mapper,
+		factory,
+		fn2.CreateEvent,
+	)
 
 	if len(c.Policy.Resources) == 0 {
 		// watch all
@@ -204,7 +96,7 @@ func (c *AuditorController) initWatchers() error {
 					Resource: name,
 				}
 
-				gvr, err = mapper.ResourceFor(gvr)
+				gvr, err := mapper.Preferred(gvr)
 				if err != nil {
 					klog.Errorln(err)
 					continue
