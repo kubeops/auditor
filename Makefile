@@ -55,8 +55,8 @@ endif
 ### These variables should not need tweaking.
 ###
 
-SRC_PKGS := apis cmd pkg example # directories which hold app source excluding tests (not vendored)
-SRC_DIRS := $(SRC_PKGS) test hack/gendocs # directories which hold app source (not vendored)
+SRC_PKGS := cmd pkg example # directories which hold app source excluding tests (not vendored)
+SRC_DIRS := $(SRC_PKGS) test hack/gendocs hack/policy # directories which hold app source (not vendored)
 
 DOCKER_PLATFORMS := linux/amd64 linux/arm linux/arm64
 BIN_PLATFORMS    := $(DOCKER_PLATFORMS)
@@ -242,13 +242,14 @@ gen-crd-protos-%:
 			--proto-import=$(DOCKER_REPO_ROOT)/vendor    \
 			--proto-import=$(DOCKER_REPO_ROOT)/third_party/protobuf \
 			--apimachinery-packages=-k8s.io/apimachinery/pkg/api/resource,-k8s.io/apimachinery/pkg/apis/meta/v1,-k8s.io/apimachinery/pkg/apis/meta/v1beta1,-k8s.io/apimachinery/pkg/runtime,-k8s.io/apimachinery/pkg/runtime/schema,-k8s.io/apimachinery/pkg/util/intstr \
-			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kubeops.dev/custom-resources/apis/appcatalog/v1alpha1,-kubeops.dev/monitoring-agent-api/api/v1,-kubeops.dev/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kubeops.dev/auditor/apis/$(subst _,/,$*)
+			--packages=-k8s.io/api/core/v1,-k8s.io/api/apps/v1,-k8s.io/api/rbac/v1,-kubeops.dev/custom-resources/apis/appcatalog/v1alpha1,-kubeops.dev/monitoring-agent-api/api/v1,-kubeops.dev/offshoot-api/api/v1,-kmodules.xyz/client-go/api/v1,kmodules.xyz/custom-resources/apis/$(subst _,/,$*)
 
 .PHONY: manifests
 manifests: gen-crds patch-crds label-crds
 
 .PHONY: gen
-gen: clientset
+gen:
+	@true
 
 fmt: $(BUILD_DIRS)
 	@docker run                                                 \
