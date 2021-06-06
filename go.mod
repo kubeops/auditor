@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.10.5
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	go.bytebuilders.dev/audit v0.0.0-20210605093127-ebe6f27e8f2a
+	go.bytebuilders.dev/audit v0.0.0-20210606035915-e588bc9c711d
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	gomodules.xyz/logs v0.0.1

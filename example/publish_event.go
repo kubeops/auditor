@@ -53,7 +53,7 @@ func main() {
 		Subject:   *subject,
 		Server:    *server,
 		Client:    nc,
-	}, nil, nil, nil)
+	}, nil, nil)
 
 	if err = publisher.Publish(opEvent, "example"); err != nil {
 		panic(err)

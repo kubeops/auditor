@@ -240,7 +240,7 @@ github.com/yudai/gojsondiff
 github.com/yudai/gojsondiff/formatter
 # github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82
 github.com/yudai/golcs
-# go.bytebuilders.dev/audit v0.0.0-20210605093127-ebe6f27e8f2a
+# go.bytebuilders.dev/audit v0.0.0-20210606035915-e588bc9c711d
 ## explicit
 go.bytebuilders.dev/audit/api/v1
 go.bytebuilders.dev/audit/lib

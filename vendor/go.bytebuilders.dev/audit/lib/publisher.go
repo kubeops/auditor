@@ -34,7 +34,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 	"kmodules.xyz/client-go/discovery"
-	dynamicfactory "kmodules.xyz/client-go/dynamic/factory"
 )
 
 type EventCreator func(obj runtime.Object) (*api.Event, error)
@@ -42,20 +41,17 @@ type EventCreator func(obj runtime.Object) (*api.Event, error)
 type EventPublisher struct {
 	nats        *NatsConfig
 	mapper      discovery.ResourceMapper
-	f           dynamicfactory.Factory
 	createEvent EventCreator
 }
 
 func NewEventPublisher(
 	nats *NatsConfig,
 	mapper discovery.ResourceMapper,
-	f dynamicfactory.Factory,
 	fn EventCreator,
 ) *EventPublisher {
 	return &EventPublisher{
 		nats:        nats,
 		mapper:      mapper,
-		f:           f,
 		createEvent: fn,
 	}
 }

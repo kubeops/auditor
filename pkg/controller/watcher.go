@@ -55,7 +55,6 @@ func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
 	handler := lib.NewEventPublisher(
 		c.nats,
 		mapper,
-		factory,
 		fn2.CreateEvent,
 	)
 
