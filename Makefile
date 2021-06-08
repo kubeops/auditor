@@ -15,7 +15,7 @@
 SHELL=/bin/bash -o pipefail
 
 PRODUCT_OWNER_NAME := appscode
-PRODUCT_NAME       := auditor
+PRODUCT_NAME       := auditor-enterprise
 ENFORCE_LICENSE    ?=
 
 GO_PKG   := kubeops.dev
