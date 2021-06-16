@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.12.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	go.bytebuilders.dev/audit v0.0.1
+	go.bytebuilders.dev/audit v0.0.2
 	go.bytebuilders.dev/license-verifier v0.9.2
 	go.bytebuilders.dev/license-verifier/kubernetes v0.9.2
 	gomodules.xyz/logs v0.0.1
@@ -20,7 +20,7 @@ require (
 	k8s.io/apiserver v0.21.1
 	k8s.io/client-go v0.21.1
 	k8s.io/klog/v2 v2.8.0
-	kmodules.xyz/client-go v0.0.0-20210605021217-cabaee7b953e
+	kmodules.xyz/client-go v0.0.0-20210614094429-affdb80e35c8
 	kmodules.xyz/custom-resources v0.0.0-20210605111625-741fcb992541
 	kmodules.xyz/resource-metadata v0.5.6-0.20210605023550-078e9b8f32c7
 	kmodules.xyz/webhook-runtime v0.0.0-20210504065021-a56f52311942
