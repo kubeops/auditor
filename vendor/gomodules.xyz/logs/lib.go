@@ -25,7 +25,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"gomodules.xyz/sets"
+	"gomodules.xyz/flags"
 	"gomodules.xyz/wait"
 	"k8s.io/klog/v2"
 )
@@ -69,8 +69,9 @@ func Init(rootCmd *cobra.Command, printFlags bool) {
 		pflag.Parse()
 		fs := pflag.CommandLine
 		if printFlags {
-			PrintFlags(fs)
+			flags.PrintFlags(fs)
 		}
+		flags.LoggerOptions = flags.GetOptions(fs)
 		return
 	}
 
@@ -78,22 +79,25 @@ func Init(rootCmd *cobra.Command, printFlags bool) {
 	if fn := rootCmd.PersistentPreRunE; fn != nil {
 		rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 			if printFlags {
-				PrintFlags(fs)
+				flags.PrintFlags(fs)
 			}
+			flags.LoggerOptions = flags.GetOptions(fs)
 			return fn(cmd, args)
 		}
 	} else if fn := rootCmd.PersistentPreRun; fn != nil {
 		rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 			if printFlags {
-				PrintFlags(fs)
+				flags.PrintFlags(fs)
 			}
+			flags.LoggerOptions = flags.GetOptions(fs)
 			fn(cmd, args)
 		}
 	} else {
 		rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 			if printFlags {
-				PrintFlags(fs)
+				flags.PrintFlags(fs)
 			}
+			flags.LoggerOptions = flags.GetOptions(fs)
 		}
 	}
 }
@@ -131,22 +135,4 @@ func GlogSetter(val string) (string, error) {
 		return "", fmt.Errorf("failed set klog.logging.verbosity %s: %v", val, err)
 	}
 	return fmt.Sprintf("successfully set klog.logging.verbosity to %s", val), nil
-}
-
-func PrintFlags(fs *pflag.FlagSet, list ...string) {
-	bl := sets.NewString("secret", "token", "password", "credential")
-	if len(list) > 0 {
-		bl.Insert(list...)
-	}
-	fs.VisitAll(func(flag *pflag.Flag) {
-		name := strings.ToLower(flag.Name)
-		val := flag.Value.String()
-		for _, keyword := range bl.UnsortedList() {
-			if strings.Contains(name, keyword) {
-				val = "***REDACTED***"
-				break
-			}
-		}
-		log.Printf("FLAG: --%s=%q", flag.Name, val)
-	})
 }

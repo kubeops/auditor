@@ -17,11 +17,11 @@ limitations under the License.
 package controller
 
 import (
+	"errors"
 	"time"
 
 	"kubeops.dev/auditor/pkg/eventer"
 
-	"go.bytebuilders.dev/audit/lib"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/kubernetes"
@@ -59,9 +59,8 @@ func (c *Config) New() (*AuditorController, error) {
 		return nil, err
 	}
 
-	natscfg, err := lib.NewNatsConfig(c.KubeClient.CoreV1().Namespaces(), c.LicenseFile)
-	if err != nil {
-		return nil, err
+	if c.LicenseFile == "" {
+		return nil, errors.New("missing license file")
 	}
 
 	ctrl := &AuditorController{
@@ -71,8 +70,6 @@ func (c *Config) New() (*AuditorController, error) {
 		dynamicClient:          c.DynamicClient,
 		dynamicInformerFactory: dynamicinformer.NewDynamicSharedInformerFactory(c.DynamicClient, c.ResyncPeriod),
 		recorder:               eventer.NewEventRecorder(c.KubeClient, "auditor"),
-
-		nats: natscfg,
 	}
 	return ctrl, nil
 }
