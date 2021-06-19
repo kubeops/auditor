@@ -19,7 +19,6 @@ package controller
 import (
 	"fmt"
 
-	"go.bytebuilders.dev/audit/lib"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
@@ -38,8 +37,6 @@ type AuditorController struct {
 	recorder      record.EventRecorder
 
 	dynamicInformerFactory dynamicinformer.DynamicSharedInformerFactory
-
-	nats *lib.NatsConfig
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {

@@ -31,32 +31,28 @@ import (
 
 func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
 	disco := c.kubeClient.Discovery()
-	mapper := disco_util.NewResourceMapper(disco_util.NewRestMapper(disco))
+	mapper, err := disco_util.NewDynamicResourceMapper(c.clientConfig)
+	if err != nil {
+		return err
+	}
 	factory := dynamicfactory.NewSharedCached(c.dynamicInformerFactory, stopCh)
-	//fn := lib.BillingEventCreator{
-	//	Mapper: mapper,
-	//	LicenseID: c.nats.LicenseID,
-	//}
+
 	g, err := graph.LoadGraphOfKnownResources()
 	if err != nil {
 		return err
 	}
-	fn2 := lib.AuditEventCreator{
+	fn := lib.AuditEventCreator{
 		Graph: g,
 		Finder: &graph.ObjectFinder{
 			Factory: factory,
 			Mapper:  mapper,
 		},
-		Factory:   factory,
-		Mapper:    mapper,
-		LicenseID: c.nats.LicenseID,
+		Factory: factory,
+		Mapper:  mapper,
 	}
-
-	handler := lib.NewEventPublisher(
-		c.nats,
-		mapper,
-		fn2.CreateEvent,
-	)
+	auditor := lib.NewResilientEventPublisher(func() (*lib.NatsConfig, error) {
+		return lib.NewNatsConfig(c.kubeClient.CoreV1().Namespaces(), c.LicenseFile)
+	}, mapper, fn.CreateEvent)
 
 	if len(c.Policy.Resources) == 0 {
 		// watch all
@@ -80,7 +76,7 @@ func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
 				}
 				gvr := gv.WithResource(rs.Name)
 				klog.Infoln("watching", gvr)
-				c.dynamicInformerFactory.ForResource(gvr).Informer().AddEventHandler(handler)
+				c.dynamicInformerFactory.ForResource(gvr).Informer().AddEventHandler(auditor.ForGVK(gv.WithKind(rs.Kind)))
 			}
 		}
 	} else {
@@ -100,8 +96,13 @@ func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
 					klog.Errorln(err)
 					continue
 				}
+				gvk, err := mapper.GVK(gvr)
+				if err != nil {
+					klog.Errorln(err)
+					continue
+				}
 				klog.Infoln("watching", gvr)
-				c.dynamicInformerFactory.ForResource(gvr).Informer().AddEventHandler(handler)
+				c.dynamicInformerFactory.ForResource(gvr).Informer().AddEventHandler(auditor.ForGVK(gvk))
 			}
 		}
 	}
