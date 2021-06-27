@@ -453,7 +453,7 @@ $(BUILD_DIRS):
 	@mkdir -p $@
 
 REGISTRY_SECRET ?=
-KUBE_NAMESPACE  ?= kube-system
+KUBE_NAMESPACE  ?= kubeops
 
 ifeq ($(strip $(REGISTRY_SECRET)),)
 	IMAGE_PULL_SECRETS =
@@ -468,7 +468,7 @@ LICENSE_FILE ?=
 install:
 	@cd ../installer; \
 	helm install auditor charts/auditor --wait \
-		--namespace=$(KUBE_NAMESPACE) \
+		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set-file license=$(LICENSE_FILE) \
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
