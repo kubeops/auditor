@@ -466,7 +466,7 @@ LICENSE_FILE ?=
 
 .PHONY: install
 install:
-	@cd ../auditor-installer; \
+	@cd ../installer; \
 	helm install auditor charts/auditor --wait \
 		--namespace=$(KUBE_NAMESPACE) \
 		--set-file license=$(LICENSE_FILE) \
@@ -478,7 +478,7 @@ install:
 
 .PHONY: uninstall
 uninstall:
-	@cd ../auditor-installer; \
+	@cd ../installer; \
 	helm uninstall auditor --namespace=$(KUBE_NAMESPACE) || true
 
 .PHONY: purge
