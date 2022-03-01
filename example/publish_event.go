@@ -61,7 +61,7 @@ func main() {
 }
 
 func getNatsClient(server, creds string) (*nats.Conn, error) {
-	var natsOpts = []nats.Option{nats.Name("Auditor")}
+	natsOpts := []nats.Option{nats.Name("Auditor")}
 
 	if len(creds) > 0 {
 		natsOpts = append(natsOpts, nats.UserCredentials(creds))

@@ -27,7 +27,7 @@ import (
 )
 
 func NewRootCmd() *cobra.Command {
-	var rootCmd = &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:               "auditor [command]",
 		Short:             `Kubernetes Auditor by AppsCode`,
 		DisableAutoGenTag: true,
