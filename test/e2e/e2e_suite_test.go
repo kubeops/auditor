@@ -35,9 +35,7 @@ const (
 	TIMEOUT = 20 * time.Minute
 )
 
-var (
-	root *framework.Framework
-)
+var root *framework.Framework
 
 func TestE2e(t *testing.T) {
 	logs.InitLogs()
