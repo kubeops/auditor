@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"fmt"
 	"strings"
 
 	"go.bytebuilders.dev/audit/lib"
@@ -25,33 +26,25 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/klog/v2"
 	disco_util "kmodules.xyz/client-go/discovery"
-	dynamicfactory "kmodules.xyz/client-go/dynamic/factory"
-	"kmodules.xyz/resource-metadata/pkg/graph"
+	"kmodules.xyz/client-go/tools/clusterid"
 )
 
-func (c *AuditorController) initWatchers(stopCh <-chan struct{}) error {
+func (c *AuditorController) initWatchers() error {
 	disco := c.kubeClient.Discovery()
 	mapper, err := disco_util.NewDynamicResourceMapper(c.clientConfig)
 	if err != nil {
 		return err
 	}
-	factory := dynamicfactory.NewSharedCached(c.dynamicInformerFactory, stopCh)
 
-	g, err := graph.LoadGraphOfKnownResources()
+	cid, err := clusterid.ClusterUID(c.kubeClient.CoreV1().Namespaces())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to extract cluster uid, reason: %v", err)
 	}
 	fn := lib.AuditEventCreator{
-		Graph: g,
-		Finder: &graph.ObjectFinder{
-			Factory: factory,
-			Mapper:  mapper,
-		},
-		Factory: factory,
-		Mapper:  mapper,
+		Mapper: mapper,
 	}
 	auditor := lib.NewResilientEventPublisher(func() (*lib.NatsConfig, error) {
-		return lib.NewNatsConfig(c.kubeClient.CoreV1().Namespaces(), c.LicenseFile)
+		return lib.NewNatsConfig(cid, c.LicenseFile)
 	}, mapper, fn.CreateEvent)
 
 	if len(c.Policy.Resources) == 0 {

@@ -207,7 +207,7 @@ func (le *LicenseEnforcer) LoadLicense() v1alpha1.License {
 	block, _ := pem.Decode(le.opts.License)
 	if block == nil {
 		// This probably is a JWT token, should be check for that when ready
-		license, _ := verifier.BadLicense(errors.New("failed to parse certificate PEM"))
+		license, _ := verifier.BadLicense(fmt.Errorf("failed to parse certificate PEM %s", string(le.opts.License)))
 		return license
 	}
 
@@ -328,7 +328,7 @@ func CheckLicenseEndpoint(config *rest.Config, apiServiceName string, features [
 		return err
 	}
 
-	apiSvc, err := aggrClient.ApiregistrationV1beta1().APIServices().Get(context.TODO(), apiServiceName, metav1.GetOptions{})
+	apiSvc, err := aggrClient.ApiregistrationV1().APIServices().Get(context.TODO(), apiServiceName, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}

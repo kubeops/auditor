@@ -40,7 +40,7 @@ type AuditorController struct {
 }
 
 func (c *AuditorController) Run(stopCh <-chan struct{}) {
-	if err := c.initWatchers(stopCh); err != nil {
+	if err := c.initWatchers(); err != nil {
 		runtime.HandleError(err)
 		return
 	}
