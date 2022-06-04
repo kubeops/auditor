@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
@@ -33,10 +33,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// CacheReader is a client.Reader
+// CacheReader is a client.Reader.
 var _ client.Reader = &CacheReader{}
 
-// CacheReader wraps a cache.Index to implement the client.CacheReader interface for a single type
+// CacheReader wraps a cache.Index to implement the client.CacheReader interface for a single type.
 type CacheReader struct {
 	// indexer is the underlying indexer wrapped by this cache.
 	indexer cache.Indexer
@@ -46,9 +46,14 @@ type CacheReader struct {
 
 	// scopeName is the scope of the resource (namespaced or cluster-scoped).
 	scopeName apimeta.RESTScopeName
+
+	// disableDeepCopy indicates not to deep copy objects during get or list objects.
+	// Be very careful with this, when enabled you must DeepCopy any object before mutating it,
+	// otherwise you will mutate the object in the cache.
+	disableDeepCopy bool
 }
 
-// Get checks the indexer for the object and writes a copy of it if found
+// Get checks the indexer for the object and writes a copy of it if found.
 func (c *CacheReader) Get(_ context.Context, key client.ObjectKey, out client.Object) error {
 	if c.scopeName == apimeta.RESTScopeNameRoot {
 		key.Namespace = ""
@@ -64,7 +69,7 @@ func (c *CacheReader) Get(_ context.Context, key client.ObjectKey, out client.Ob
 	// Not found, return an error
 	if !exists {
 		// Resource gets transformed into Kind in the error anyway, so this is fine
-		return errors.NewNotFound(schema.GroupResource{
+		return apierrors.NewNotFound(schema.GroupResource{
 			Group:    c.groupVersionKind.Group,
 			Resource: c.groupVersionKind.Kind,
 		}, key.Name)
@@ -76,9 +81,13 @@ func (c *CacheReader) Get(_ context.Context, key client.ObjectKey, out client.Ob
 		return fmt.Errorf("cache contained %T, which is not an Object", obj)
 	}
 
-	// deep copy to avoid mutating cache
-	// TODO(directxman12): revisit the decision to always deepcopy
-	obj = obj.(runtime.Object).DeepCopyObject()
+	if c.disableDeepCopy {
+		// skip deep copy which might be unsafe
+		// you must DeepCopy any object before mutating it outside
+	} else {
+		// deep copy to avoid mutating cache
+		obj = obj.(runtime.Object).DeepCopyObject()
+	}
 
 	// Copy the value of the item in the cache to the returned value
 	// TODO(directxman12): this is a terrible hack, pls fix (we should have deepcopyinto)
@@ -88,12 +97,14 @@ func (c *CacheReader) Get(_ context.Context, key client.ObjectKey, out client.Ob
 		return fmt.Errorf("cache had type %s, but %s was asked for", objVal.Type(), outVal.Type())
 	}
 	reflect.Indirect(outVal).Set(reflect.Indirect(objVal))
-	out.GetObjectKind().SetGroupVersionKind(c.groupVersionKind)
+	if !c.disableDeepCopy {
+		out.GetObjectKind().SetGroupVersionKind(c.groupVersionKind)
+	}
 
 	return nil
 }
 
-// List lists items out of the indexer and writes them to out
+// List lists items out of the indexer and writes them to out.
 func (c *CacheReader) List(_ context.Context, out client.ObjectList, opts ...client.ListOption) error {
 	var objs []interface{}
 	var err error
@@ -101,20 +112,64 @@ func (c *CacheReader) List(_ context.Context, out client.ObjectList, opts ...cli
 	listOpts := client.ListOptions{}
 	listOpts.ApplyOptions(opts)
 
-	if listOpts.FieldSelector != nil {
+	switch {
+	// listOpts.FieldSelector.Empty() == true means select all
+	case listOpts.FieldSelector != nil && !listOpts.FieldSelector.Empty():
 		// TODO(directxman12): support more complicated field selectors by
 		// combining multiple indices, GetIndexers, etc
-		field, val, requiresExact := requiresExactMatch(listOpts.FieldSelector)
+		requiresExact := requiresExactMatch(listOpts.FieldSelector)
 		if !requiresExact {
 			return fmt.Errorf("non-exact field matches are not supported by the cache")
 		}
-		// list all objects by the field selector.  If this is namespaced and we have one, ask for the
-		// namespaced index key.  Otherwise, ask for the non-namespaced variant by using the fake "all namespaces"
-		// namespace.
-		objs, err = c.indexer.ByIndex(FieldIndexName(field), KeyToNamespacedKey(listOpts.Namespace, val))
-	} else if listOpts.Namespace != "" {
+
+		reqs := listOpts.FieldSelector.Requirements()
+		// len(reqs) == 0 means, select nothing
+		if len(reqs) > 0 {
+			req := reqs[0]
+			// list all objects by the field selector.  If this is namespaced and we have one, ask for the
+			// namespaced index key.  Otherwise, ask for the non-namespaced variant by using the fake "all namespaces"
+			// namespace.
+			list, err := c.indexer.ByIndex(FieldIndexName(req.Field), KeyToNamespacedKey(listOpts.Namespace, req.Value))
+			if err != nil {
+				return err
+			}
+			if len(reqs) > 1 {
+				objmap := make(map[client.ObjectKey]interface{}, len(list))
+				for i := range list {
+					obj := list[i].(client.Object)
+					objmap[client.ObjectKey{Namespace: obj.GetNamespace(), Name: obj.GetName()}] = obj
+				}
+				for _, req := range reqs[1:] {
+					list, err := c.indexer.ByIndex(FieldIndexName(req.Field), KeyToNamespacedKey(listOpts.Namespace, req.Value))
+					if err != nil {
+						return err
+					}
+
+					numap := make(map[client.ObjectKey]interface{}, len(list))
+					for i := range list {
+						obj := list[i].(client.Object)
+						key := client.ObjectKey{Namespace: obj.GetNamespace(), Name: obj.GetName()}
+						if o, exists := objmap[key]; exists {
+							if o.(client.Object).GetGeneration() == obj.GetGeneration() {
+								numap[key] = obj
+							} else {
+								return fmt.Errorf("multiple generation found in indices for %+v %s/%s", obj.GetObjectKind().GroupVersionKind(), obj.GetNamespace(), obj.GetName())
+							}
+						}
+					}
+					objmap = numap
+				}
+				objs = make([]interface{}, 0, len(objmap))
+				for _, obj := range objmap {
+					objs = append(objs, obj)
+				}
+			} else {
+				objs = list
+			}
+		}
+	case listOpts.Namespace != "":
 		objs, err = c.indexer.ByIndex(cache.NamespaceIndex, listOpts.Namespace)
-	} else {
+	default:
 		objs = c.indexer.List()
 	}
 	if err != nil {
@@ -128,10 +183,10 @@ func (c *CacheReader) List(_ context.Context, out client.ObjectList, opts ...cli
 	limitSet := listOpts.Limit > 0
 
 	runtimeObjs := make([]runtime.Object, 0, len(objs))
-	for i, item := range objs {
+	for _, item := range objs {
 		// if the Limit option is set and the number of items
 		// listed exceeds this limit, then stop reading.
-		if limitSet && int64(i) >= listOpts.Limit {
+		if limitSet && int64(len(runtimeObjs)) >= listOpts.Limit {
 			break
 		}
 		obj, isObj := item.(runtime.Object)
@@ -149,8 +204,15 @@ func (c *CacheReader) List(_ context.Context, out client.ObjectList, opts ...cli
 			}
 		}
 
-		outObj := obj.DeepCopyObject()
-		outObj.GetObjectKind().SetGroupVersionKind(c.groupVersionKind)
+		var outObj runtime.Object
+		if c.disableDeepCopy {
+			// skip deep copy which might be unsafe
+			// you must DeepCopy any object before mutating it outside
+			outObj = obj
+		} else {
+			outObj = obj.DeepCopyObject()
+			outObj.GetObjectKind().SetGroupVersionKind(c.groupVersionKind)
+		}
 		runtimeObjs = append(runtimeObjs, outObj)
 	}
 	return apimeta.SetList(out, runtimeObjs)
@@ -168,16 +230,14 @@ func objectKeyToStoreKey(k client.ObjectKey) string {
 }
 
 // requiresExactMatch checks if the given field selector is of the form `k=v` or `k==v`.
-func requiresExactMatch(sel fields.Selector) (field, val string, required bool) {
+func requiresExactMatch(sel fields.Selector) (required bool) {
 	reqs := sel.Requirements()
-	if len(reqs) != 1 {
-		return "", "", false
+	for _, req := range reqs {
+		if req.Operator != selection.Equals && req.Operator != selection.DoubleEquals {
+			return false
+		}
 	}
-	req := reqs[0]
-	if req.Operator != selection.Equals && req.Operator != selection.DoubleEquals {
-		return "", "", false
-	}
-	return req.Field, req.Value, true
+	return true
 }
 
 // FieldIndexName constructs the name of the index over the given field,
@@ -186,7 +246,7 @@ func FieldIndexName(field string) string {
 	return "field:" + field
 }
 
-// noNamespaceNamespace is used as the "namespace" when we want to list across all namespaces
+// noNamespaceNamespace is used as the "namespace" when we want to list across all namespaces.
 const allNamespacesNamespace = "__all_namespaces"
 
 // KeyToNamespacedKey prefixes the given index key with a namespace
