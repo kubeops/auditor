@@ -19,7 +19,7 @@ package server
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"time"
 
 	"kubeops.dev/auditor/pkg/controller"
@@ -75,7 +75,7 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 	var err error
 
 	if s.PolicyFile != "" {
-		data, err := ioutil.ReadFile(s.PolicyFile)
+		data, err := os.ReadFile(s.PolicyFile)
 		if err != nil {
 			return fmt.Errorf("failed to read policy file: %v", err)
 		}
