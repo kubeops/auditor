@@ -478,6 +478,7 @@ install:
 	helm install auditor charts/auditor --wait \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set-file license=$(LICENSE_FILE) \
+		--set registryFQDN="" \
 		--set image.registry=$(REGISTRY) \
 		--set image.tag=$(TAG) \
 		--set imagePullPolicy=IfNotPresent \
