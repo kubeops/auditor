@@ -20,16 +20,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/pkg/errors"
+	proxyserver "go.bytebuilders.dev/license-proxyserver/apis/proxyserver/v1alpha1"
+	proxyclient "go.bytebuilders.dev/license-proxyserver/client/clientset/versioned"
 	verifier "go.bytebuilders.dev/license-verifier"
 	"go.bytebuilders.dev/license-verifier/info"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 )
 
@@ -53,10 +57,29 @@ type NatsCredential struct {
 	Credential []byte `json:"credential"`
 }
 
-func NewNatsConfig(clusterID string, LicenseFile string) (*NatsConfig, error) {
-	licenseBytes, err := ioutil.ReadFile(LicenseFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read license, reason: %v", err)
+func NewNatsConfig(cfg *rest.Config, clusterID string, LicenseFile string) (*NatsConfig, error) {
+	var licenseBytes []byte
+	var err error
+
+	licenseBytes, err = os.ReadFile(LicenseFile)
+	if errors.Is(err, os.ErrNotExist) {
+		req := proxyserver.LicenseRequest{
+			TypeMeta: metav1.TypeMeta{},
+			Request: &proxyserver.LicenseRequestRequest{
+				Features: info.Features(),
+			},
+		}
+		pc, err := proxyclient.NewForConfig(cfg)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed create client for license-proxyserver")
+		}
+		resp, err := pc.ProxyserverV1alpha1().LicenseRequests().Create(context.TODO(), &req, metav1.CreateOptions{})
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to read license")
+		}
+		licenseBytes = []byte(resp.Response.License)
+	} else if err != nil {
+		return nil, errors.Wrap(err, "failed to read license")
 	}
 
 	opts := verifier.Options{
@@ -76,18 +99,17 @@ func NewNatsConfig(clusterID string, LicenseFile string) (*NatsConfig, error) {
 	}
 	defer resp.Body.Close()
 
-	var buf bytes.Buffer
-	_, err = io.Copy(&buf, resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New(resp.Status + ", " + buf.String())
+		return nil, errors.New(resp.Status + ", " + string(body))
 	}
 
 	var natscred NatsCredential
-	err = json.Unmarshal(buf.Bytes(), &natscred)
+	err = json.Unmarshal(body, &natscred)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +138,7 @@ func NewConnection(natscred NatsCredential) (nc *nats.Conn, err error) {
 	}
 
 	credFile := "/tmp/nats.creds"
-	if err = ioutil.WriteFile(credFile, natscred.Credential, 0o600); err != nil {
+	if err = os.WriteFile(credFile, natscred.Credential, 0o600); err != nil {
 		return nil, err
 	}
 
