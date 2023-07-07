@@ -475,6 +475,7 @@ LICENSE_FILE ?=
 .PHONY: install
 install:
 	@cd ../installer; \
+	kubectl label ns $(KUBE_NAMESPACE) pod-security.kubernetes.io/enforce=restricted; \
 	helm install auditor charts/auditor --wait \
 		--namespace=$(KUBE_NAMESPACE) --create-namespace \
 		--set-file license=$(LICENSE_FILE) \
