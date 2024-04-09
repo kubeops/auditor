@@ -9,9 +9,9 @@ require (
 	github.com/onsi/gomega v1.24.2
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
-	go.bytebuilders.dev/audit v0.0.26
-	go.bytebuilders.dev/license-verifier v0.12.1
-	go.bytebuilders.dev/license-verifier/kubernetes v0.12.1
+	go.bytebuilders.dev/audit v0.0.33
+	go.bytebuilders.dev/license-verifier v0.14.0
+	go.bytebuilders.dev/license-verifier/kubernetes v0.14.0
 	golang.org/x/text v0.7.0
 	gomodules.xyz/logs v0.0.6
 	gomodules.xyz/runtime v0.3.0
@@ -21,7 +21,7 @@ require (
 	k8s.io/apiserver v0.25.3
 	k8s.io/client-go v0.25.3
 	k8s.io/klog/v2 v2.80.1
-	kmodules.xyz/client-go v0.25.17
+	kmodules.xyz/client-go v0.29.13
 	kmodules.xyz/custom-resources v0.25.1
 	kmodules.xyz/webhook-runtime v0.25.0
 	sigs.k8s.io/yaml v1.3.0
@@ -48,6 +48,8 @@ require (
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/docker/cli v24.0.9+incompatible
+	github.com/docker/docker v24.0.9+incompatible
 	github.com/dustin/go-humanize v1.0.1-0.20220316001817-d5090ed65664 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
@@ -62,7 +64,7 @@ require (
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gnostic v0.6.9 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
@@ -109,7 +111,7 @@ require (
 	github.com/xlab/treeprint v1.1.0 // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
-	go.bytebuilders.dev/license-proxyserver v0.0.3 // indirect
+	go.bytebuilders.dev/license-proxyserver v0.0.9 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.4 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.4 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.4 // indirect
@@ -129,7 +131,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
@@ -149,7 +151,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
@@ -163,7 +165,7 @@ require (
 	k8s.io/utils v0.0.0-20221012122500-cfd413dd9e85 // indirect
 	kmodules.xyz/apiversion v0.2.0 // indirect
 	kmodules.xyz/offshoot-api v0.25.0 // indirect
-	kmodules.xyz/resource-metadata v0.15.0 // indirect
+	kmodules.xyz/resource-metadata v0.18.2 // indirect
 	kmodules.xyz/resource-metrics v0.25.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
 	sigs.k8s.io/cli-utils v0.33.0 // indirect
