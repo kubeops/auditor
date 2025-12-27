@@ -21,9 +21,9 @@ require (
 	k8s.io/apiserver v0.25.3
 	k8s.io/client-go v0.25.3
 	k8s.io/klog/v2 v2.80.1
-	kmodules.xyz/client-go v0.29.13
-	kmodules.xyz/custom-resources v0.25.1
-	kmodules.xyz/webhook-runtime v0.25.0
+	kmodules.xyz/client-go v0.34.2
+	kmodules.xyz/custom-resources v0.34.0
+	kmodules.xyz/webhook-runtime v0.34.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -165,7 +165,7 @@ require (
 	k8s.io/utils v0.0.0-20221012122500-cfd413dd9e85 // indirect
 	kmodules.xyz/apiversion v0.2.0 // indirect
 	kmodules.xyz/offshoot-api v0.25.0 // indirect
-	kmodules.xyz/resource-metadata v0.18.2 // indirect
+	kmodules.xyz/resource-metadata v0.40.2 // indirect
 	kmodules.xyz/resource-metrics v0.25.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
 	sigs.k8s.io/cli-utils v0.33.0 // indirect
@@ -182,7 +182,7 @@ replace sigs.k8s.io/controller-runtime => github.com/kmodules/controller-runtime
 
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.6
 
-replace k8s.io/apiserver => github.com/kmodules/apiserver v0.25.2-0.20220917044909-4ac5fceca518
+replace k8s.io/apiserver => github.com/kmodules/apiserver v0.21.2-0.20210716212718-83e5493ac170
 
 replace k8s.io/kubernetes => github.com/kmodules/kubernetes v1.26.0-alpha.0.0.20220917022409-54ac9f3f1315
 
@@ -203,3 +203,7 @@ replace (
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v0.20.0
 	go.opentelemetry.io/proto/otlp => go.opentelemetry.io/proto/otlp v0.7.0
 )
+
+replace github.com/satori/go.uuid => github.com/gofrs/uuid v4.0.0+incompatible
+
+replace helm.sh/helm/v3 => github.com/kubepack/helm/v3 v3.6.1-0.20210518225915-c3e0ce48dd1b
